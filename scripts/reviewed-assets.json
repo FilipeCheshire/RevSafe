@@ -1,0 +1,26 @@
+{
+  "public/logoRev.png": {
+    "sha256": "c75414ac77d8a675c7e051a411a0bbccb82e56e62e27010c5c7a46d66d97feb9",
+    "review": "Visually inspected RevSafe logo. PNG metadata contains only Software=Figma and color/resolution information; no personal metadata or trailing payload. Reviewed 2026-10-13."
+  },
+  "public/logoR.png": {
+    "sha256": "f26deb79b713c5bd68404bee73a666f406488f09a78da96823df9f98e2e19c80",
+    "review": "User-provided logo visually inspected, or favicon generated locally from that logo on white background. PNG metadata inspected; no personal metadata. Reviewed 2026-10-13."
+  },
+  "public/favicon.ico": {
+    "sha256": "8330fa5d5e76259be57cce9e3b5a124b385cb644cc9ca0176fd3c07d211d32fa",
+    "review": "User-provided logo visually inspected, or favicon generated locally from that logo on white background. PNG metadata inspected; no personal metadata. Reviewed 2026-10-13."
+  },
+  "public/apple-touch-icon.png": {
+    "sha256": "fbfd69d97f740d728f9d665bd734a88c63b5aec65faed1354d88afac39ac2bd2",
+    "review": "User-provided logo visually inspected, or favicon generated locally from that logo on white background. PNG metadata inspected; no personal metadata. Reviewed 2026-10-13."
+  },
+  "src/app/icon.png": {
+    "sha256": "4b6c9bf8d1dc74c448c93c43a9d5f8d1fbff5628585aa30afee34c6b4bd9419a",
+    "review": "Generated locally from previously reviewed logoR favicon assets; no personal metadata. Reviewed 2026-10-13."
+  },
+  "src/app/apple-icon.png": {
+    "sha256": "fbfd69d97f740d728f9d665bd734a88c63b5aec65faed1354d88afac39ac2bd2",
+    "review": "Generated locally from previously reviewed logoR favicon assets; no personal metadata. Reviewed 2026-10-13."
+  }
+}

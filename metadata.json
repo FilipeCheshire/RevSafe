@@ -1,0 +1,6 @@
+{
+  "name": "RevSafe - Curadoria e Comparador Imparcial",
+  "description": "Plataforma de curadoria e comparação imparcial de produtos com análise de qualidade, segurança, sustentabilidade e custo-benefício.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

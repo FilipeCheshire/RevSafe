@@ -1,0 +1,102 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand: #0e7ffd;
+  --color-brand-hover: #409aff;
+  --color-brand-action: #0864ce;
+  --color-brand-action-hover: #0755b1;
+  --color-blue-500: #0e7ffd;
+  --color-blue-600: #0864ce;
+  --color-blue-700: #0755b1;
+  --color-slate-950: #071940;
+  --color-slate-900: #0c2450;
+  --color-slate-800: #1b3866;
+  --font-sans: "Segoe UI", Inter, system-ui, sans-serif;
+}
+:root { color-scheme: light; background: #f8fafc; color: #0f172a; }
+:root.dark { color-scheme: dark; background: #071940; color: #f1f5f9; }
+body { margin: 0; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font-family: inherit; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button { touch-action: manipulation; }
+button:enabled { cursor: pointer; }
+:focus-visible { outline: 3px solid #0e7ffd; outline-offset: 3px; }
+.dark :focus-visible { outline-color: #93c5fd; }
+input::placeholder, textarea::placeholder { color: #64748b; opacity: 1; }
+.dark input::placeholder, .dark textarea::placeholder { color: #94a3b8; }
+img { max-width: 100%; }
+main { overflow-wrap: anywhere; }
+.home-hero { background-image: radial-gradient(ellipse at 50% 0%, #dbeafe 0%, transparent 65%); }
+.dark .home-hero { background-image: radial-gradient(ellipse at 50% 0%, #103975 0%, transparent 65%); }
+.skip-link { position: fixed; top: -100px; left: 16px; z-index: 100; padding: 12px 20px; border-radius: 12px; background: #1d4ed8; color: white; }
+.skip-link:focus { top: 12px; }
+@media (max-width: 639px) {
+  input, select, textarea { font-size: 16px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+.animated-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 4px;
+  padding: 14px 40px;
+  border: 2px solid transparent;
+  border-radius: 100px;
+  background: var(--color-brand-action);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  box-shadow: 0 0 0 1px var(--color-brand);
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-radius .6s cubic-bezier(.23, 1, .32, 1), box-shadow .6s cubic-bezier(.23, 1, .32, 1), transform .2s ease;
+}
+.animated-button svg {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  z-index: 2;
+  pointer-events: none;
+  transition: left .8s cubic-bezier(.23, 1, .32, 1), right .8s cubic-bezier(.23, 1, .32, 1);
+}
+.animated-button .arr-1 { right: 12px; }
+.animated-button .arr-2 { left: -25%; }
+.animated-button .text {
+  position: relative;
+  z-index: 2;
+  transform: translateX(-8px);
+  transition: transform .8s cubic-bezier(.23, 1, .32, 1);
+}
+.animated-button .circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 320%;
+  aspect-ratio: 1;
+  background: #071940;
+  border-radius: 50%;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: transform .8s cubic-bezier(.23, 1, .32, 1), opacity .4s ease;
+}
+.animated-button:is(:hover, :focus-visible):enabled { border-radius: 12px; box-shadow: 0 0 0 4px transparent; }
+.animated-button:is(:hover, :focus-visible):enabled .arr-1 { right: -25%; }
+.animated-button:is(:hover, :focus-visible):enabled .arr-2 { left: 12px; }
+.animated-button:is(:hover, :focus-visible):enabled .text { transform: translateX(8px); }
+.animated-button:is(:hover, :focus-visible):enabled .circle { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+.animated-button:active:enabled { transform: scale(.96); box-shadow: 0 0 0 3px var(--color-brand); }
+.animated-button:disabled { opacity: .6; cursor: not-allowed; }
+.animated-button--compact { padding: 9px 28px; font-size: 12px; }
+.animated-button--compact svg { width: 16px; height: 16px; }
+.animated-button--compact .arr-1 { right: 8px; }
+.animated-button--compact:is(:hover, :focus-visible):enabled .arr-2 { left: 8px; }

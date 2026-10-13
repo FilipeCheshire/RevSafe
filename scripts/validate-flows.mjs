@@ -1,0 +1,17 @@
+import { applyHostingHeaders } from './hosting-test-context.mjs';
+import { chromium, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import {writeFile} from 'node:fs/promises';
+const browser=await chromium.launch();const context=await browser.newContext({viewport:{width:390,height:844}});await applyHostingHeaders(context);const page=await context.newPage();const errors=[];const api=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(r.url().includes('/api/'))api.push(r.url())});
+await page.goto('http://localhost:3000');
+await page.getByRole('searchbox',{name:'Pesquisar produtos'}).fill('ThinkPad');await page.getByRole('button',{name:'Buscar',exact:true}).click();await expect(page.getByText('Lenovo ThinkPad E14 Gen 5',{exact:true})).toBeVisible();
+const navigate=async name=>{await page.getByRole('button',{name:'Abrir menu de navegação'}).click();await page.locator('#mobile-navigation').getByRole('button',{name:new RegExp('^'+name+'(?:\\s*[0-9]+)?$')}).click()};
+await navigate('Início');await page.getByRole('button',{name:'Comparar',exact:true}).nth(0).click();await page.getByRole('button',{name:'Comparar',exact:true}).nth(0).click();await page.getByRole('button',{name:'Comparar Lado a Lado'}).click();await expect(page.locator('main table')).toBeVisible();await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+await page.getByRole('button',{name:'Alternar tema claro e escuro'}).click();await page.reload();await expect(page.locator('html')).toHaveClass('dark');await navigate('Início');await expect(page.getByRole('button',{name:'Comparando',exact:true})).toHaveCount(2);
+await page.getByRole('button',{name:'Ficha Técnica',exact:true}).first().click();await expect(page.getByRole('dialog')).toBeVisible();await page.screenshot({path:'artifacts/product-modal-dark.png'});const productAudit=await new AxeBuilder({page}).withRules(['color-contrast']).analyze();await page.getByRole('dialog').getByRole('button',{name:'Fechar',exact:false}).click();
+await page.getByRole('button',{name:'Entrar',exact:true}).click();await page.screenshot({path:'artifacts/auth-modal-dark.png'});const authAudit=await new AxeBuilder({page}).withRules(['color-contrast']).analyze();
+await expect(page.getByRole('dialog').locator('input')).toHaveCount(0);
+await page.getByRole('button',{name:'Usar perfil demonstrativo'}).click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('revsafe_user_session')).id)).toBe('usr-demo-01');await page.reload();await page.getByRole('button',{name:'Sair',exact:true}).click();await expect.poll(()=>page.evaluate(()=>localStorage.getItem('revsafe_user_session'))).toBeNull();
+await navigate('Chatbot');await page.locator('main input').fill('Como funciona a metodologia?');await page.getByRole('button',{name:'Enviar mensagem'}).click();await expect(page.locator('main')).toContainText('4 pilares fundamentais');
+await writeFile('artifacts/functional-report.json',JSON.stringify({errors,api,product:productAudit.violations,auth:authAudit.violations},null,2));console.log('Search, comparison, persistence and modal checks passed.');await browser.close();
+if(errors.length || api.length || productAudit.violations.length || authAudit.violations.length) process.exitCode=1;

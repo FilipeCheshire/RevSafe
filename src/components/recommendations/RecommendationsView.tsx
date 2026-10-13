@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
-  Sparkles,
   Sliders,
   Award,
   ShieldCheck,
@@ -10,7 +9,7 @@ import {
   Scale,
   CheckCircle2
 } from 'lucide-react';
-import { Category, Product, RecommendationPreferences, RecommendationItem } from '../../types';
+import { Category, Product, RecommendationPreferences } from '../../types';
 import { getRecommendations } from '../../services/recommendationEngine';
 
 interface RecommendationsViewProps {
@@ -38,13 +37,10 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
     requireNoAlerts: true,
   });
 
-  const [recommendations, setRecommendations] = useState<RecommendationItem[]>(() =>
-    getRecommendations(preferences)
-  );
-
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const recommendations = useMemo(() => getRecommendations(preferences), [preferences]);
   const handleRunRecommendation = () => {
-    const results = getRecommendations(preferences);
-    setRecommendations(results);
+    resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleReset = () => {
@@ -62,7 +58,6 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
       requireNoAlerts: true,
     };
     setPreferences(defaultPrefs);
-    setRecommendations(getRecommendations(defaultPrefs));
   };
 
   return (
@@ -79,27 +74,28 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Formulário de Preferências (Coluna Esquerda) */}
-        <div className="lg:col-span-5 bg-white dark:bg-slate-950 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div data-testid="recommendation-filters" className="min-w-0 lg:col-span-5 bg-white dark:bg-slate-950 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2 font-bold text-sm text-slate-900 dark:text-white">
               <Sliders className="w-4 h-4 text-blue-600" />
               <span>Critérios e Preferências</span>
             </div>
             <button
               onClick={handleReset}
-              className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer"
+              className="shrink-0 whitespace-nowrap text-xs text-slate-600 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Restaurar</span>
             </button>
           </div>
 
+          <p className="text-xs text-slate-600 dark:text-slate-400">Os resultados são atualizados ao alterar os critérios. Categoria, orçamento e restrições são sempre respeitados; finalidade e pesos ajustam a ordem.</p>
           {/* 1. Categoria */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               1. Categoria
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2">
               {[
                 { id: 'all', label: 'Todas as Categorias' },
                 { id: 'smartphones', label: 'Smartphones' },
@@ -111,8 +107,9 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                 <button
                   key={cat.id}
                   type="button"
+                  aria-pressed={preferences.category === cat.id}
                   onClick={() => setPreferences({ ...preferences, category: cat.id as any })}
-                  className={`py-2 px-3 rounded-lg text-xs font-medium text-left transition-all cursor-pointer ${
+                  className={`py-2 px-3 rounded-lg text-xs font-medium text-left transition-shadow cursor-pointer ${
                     preferences.category === cat.id
                       ? 'bg-brand-action text-white font-semibold'
                       : 'bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
@@ -135,6 +132,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
               </span>
             </div>
             <input
+              aria-label="Orçamento máximo das recomendações"
               type="range"
               min="300"
               max="12000"
@@ -148,7 +146,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
             <div className="flex justify-between text-[10px] text-slate-600 dark:text-slate-400 font-medium mt-1">
               <span>R$ 300</span>
               <span>R$ 5.000</span>
-              <span>R$ 12.000+</span>
+              <span>R$ 12.000</span>
             </div>
           </div>
 
@@ -158,6 +156,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
               3. Finalidade Principal
             </label>
             <select
+              aria-label="Finalidade principal"
               value={preferences.purpose}
               onChange={(e) => setPreferences({ ...preferences, purpose: e.target.value })}
               className="w-full py-2.5 px-3 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -165,7 +164,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
               <option value="produtividade">Trabalho, Produtividade & Estudos</option>
               <option value="jogos">Jogos & Desempenho Gráfico</option>
               <option value="diaadia">Uso Geral Doméstico & Familiar</option>
-              <option value="longevidade">Máxima Durabilidade e Menor Depreciação</option>
+              <option value="longevidade">Durabilidade e Facilidade de Reparo</option>
             </select>
           </div>
 
@@ -184,6 +183,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                 <span className="font-bold">{preferences.weights.quality}/5</span>
               </div>
               <input
+                aria-label="Peso de qualidade"
                 type="range"
                 min="1"
                 max="5"
@@ -207,6 +207,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                 <span className="font-bold">{preferences.weights.safety}/5</span>
               </div>
               <input
+                aria-label="Peso de segurança"
                 type="range"
                 min="1"
                 max="5"
@@ -230,6 +231,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                 <span className="font-bold">{preferences.weights.sustainability}/5</span>
               </div>
               <input
+                aria-label="Peso de sustentabilidade"
                 type="range"
                 min="1"
                 max="5"
@@ -253,6 +255,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                 <span className="font-bold">{preferences.weights.costBenefit}/5</span>
               </div>
               <input
+                aria-label="Peso de custo-benefício"
                 type="range"
                 min="1"
                 max="5"
@@ -285,22 +288,26 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
             </label>
           </div>
 
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input type="checkbox" checked={preferences.requireEcoCert} onChange={e => setPreferences({ ...preferences, requireEcoCert: e.target.checked })} className="mt-0.5 accent-blue-600" />
+            <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">Exigir certificação ambiental ou energética</span>
+          </label>
+
           <button
             type="button"
             onClick={handleRunRecommendation}
             className="w-full py-2.5 rounded-xl bg-brand-action hover:bg-brand-action-hover text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Atualizar Recomendações</span>
+            <span>Ver Recomendações</span>
           </button>
         </div>
 
         {/* Resultados das Recomendações (Coluna Direita) */}
-        <div className="lg:col-span-7 space-y-4">
+        <div ref={resultsRef} data-testid="recommendation-results" className="min-w-0 lg:col-span-7 space-y-4 scroll-mt-24">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span>Opções Recomendadas</span>
-              <span className="text-xs font-semibold bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 px-2.5 py-0.5 rounded-full">
+              <span aria-live="polite" className="text-xs font-semibold bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 px-2.5 py-0.5 rounded-full">
                 {recommendations.length} encontrados
               </span>
             </h2>
@@ -309,7 +316,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
           {recommendations.length === 0 ? (
             <div className="p-8 text-center bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800">
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                Nenhum produto atendeu aos critérios informados. Ajuste o teto de orçamento para visualizar opções.
+                Nenhum produto atendeu aos critérios informados. Ajuste a categoria, o orçamento ou as restrições para visualizar opções.
               </p>
             </div>
           ) : (
@@ -320,13 +327,15 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
               return (
                 <div
                   key={prod.id}
+                  data-testid="recommendation-card"
+                  data-category={prod.category}
+                  data-price={prod.price}
                   className="bg-white dark:bg-slate-950 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-4 relative overflow-hidden"
                 >
                   {/* Top Match Bar */}
                   <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-bold px-3 py-1 rounded-full bg-brand-action text-white shadow-sm flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" />
                         <span>{rec.matchScore}% de Compatibilidade</span>
                       </span>
                       <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">

@@ -1,0 +1,58 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { resolve, dirname } from 'node:path';
+import ts from 'typescript';
+const modules = new Map();
+async function moduleUrl(path) {
+  path=resolve(path);if(modules.has(path))return modules.get(path);
+  let js=ts.transpileModule(await readFile(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+  for(const match of [...js.matchAll(/from ['"](\.[^'"]+)['"]/g)])js=js.replace(match[0],`from '${await moduleUrl(resolve(dirname(path),match[1]+'.ts'))}'`);
+  const url='data:text/javascript;base64,'+Buffer.from(js).toString('base64');modules.set(path,url);return url;
+}
+const {MOCK_PRODUCTS:products}=await import(await moduleUrl('src/data/mockProducts.ts'));
+const {MOCK_PC_COMPONENTS:parts}=await import(await moduleUrl('src/data/mockPCComponents.ts'));
+const {calculateBuildCost,calculateLowestBuildCost,totalRamModules,partsListText}=await import(await moduleUrl('src/services/pcBuild.ts'));
+const {checkCompatibility,calculateEstimatedPower}=await import(await moduleUrl('src/services/compatibilityChecker.ts'));
+const {getRecommendations,hasEnvironmentalCertification}=await import(await moduleUrl('src/services/recommendationEngine.ts'));
+const part=id=>{const item=parts.find(p=>p.id===id);assert(item,id);return item};
+const base={cpu:part('cpu-01'),motherboard:part('mobo-02'),ram:[part('ram-01')],gpu:[part('gpu-02')],storage:[part('ssd-01')],psu:part('psu-02'),case:part('case-01'),monitor:[],targetBudget:20000,targetPurpose:'gaming'};
+const baseline=calculateBuildCost(base),basePower=calculateEstimatedPower(base).estimatedDrawWatts;
+assert.equal(checkCompatibility(base).filter(i=>i.type==='error').length,0);
+const multiGpu={...base,gpu:[...base.gpu,part('gpu-01')]};
+assert.equal(calculateBuildCost(multiGpu),baseline+part('gpu-01').price);
+assert.equal(calculateEstimatedPower(multiGpu).estimatedDrawWatts,basePower+part('gpu-01').tdpWatts);
+assert(checkCompatibility(multiGpu).some(i=>i.type==='warning'&&i.title.includes('placas de vídeo')));
+const twoKits={...base,ram:[...base.ram,part('ram-01')]};
+assert.equal(totalRamModules(twoKits),4);
+assert(checkCompatibility(twoKits).some(i=>i.type==='error'&&i.title==='Slots de memória insuficientes'));
+assert(!checkCompatibility({...twoKits,motherboard:part('mobo-01')}).some(i=>i.type==='error'));
+assert(checkCompatibility({...base,ram:[part('ram-01'),part('ram-02')]}).some(i=>i.title==='Incompatibilidade no tipo de memória RAM'));
+assert(partsListText(twoKits).some(line=>line.includes('2× Kingston')));
+assert(checkCompatibility({...base,storage:[part('ssd-01'),part('ssd-02'),part('ssd-01')]}).some(i=>i.title==='Slots M.2 insuficientes'));
+const monitor=parts.find(p=>p.type==='monitor');assert(monitor);
+const twoScreens={...base,monitor:[monitor,monitor]};
+assert.equal(calculateBuildCost(twoScreens),baseline+2*monitor.price);
+assert.equal(calculateEstimatedPower(twoScreens).estimatedDrawWatts,basePower);
+assert.equal(calculateLowestBuildCost(twoScreens),calculateLowestBuildCost(base)+2*Math.min(monitor.price,...(monitor.priceQuotes||[]).filter(q=>q.available).map(q=>q.price)));
+assert(partsListText(twoScreens).some(line=>line.includes('2× '+monitor.name)));
+assert.equal(calculateBuildCost({...base,ram:[],gpu:[],storage:[],monitor:[]}),base.cpu.price+base.motherboard.price+base.psu.price+base.case.price);
+const prefs={category:'all',budgetMax:5000,purpose:'produtividade',weights:{quality:4,safety:5,sustainability:4,costBenefit:5},requireNoAlerts:true,requireEcoCert:false};
+for(const category of ['all','smartphones','notebooks','eletrodomesticos','audio','monitores'])for(const budgetMax of [0,300,1000,5000,12000])for(const requireEcoCert of [false,true])for(const requireNoAlerts of [false,true]) {
+ const result=getRecommendations({...prefs,category,budgetMax,requireEcoCert,requireNoAlerts});
+ assert(result.every(r=>r.product.price<=budgetMax));
+ assert(result.every(r=>category==='all'||r.product.category===category));
+ assert(result.every(r=>!requireNoAlerts||!r.product.safetyAlert.hasAlert));
+ assert(result.every(r=>!requireEcoCert||hasEnvironmentalCertification(r.product)));
+}
+assert.equal(getRecommendations({...prefs,budgetMax:1}).length,0);
+const unsafe=products.find(p=>p.safetyAlert.hasAlert);assert(unsafe);
+assert.equal(getRecommendations({...prefs,requireNoAlerts:true},[unsafe]).length,0);
+assert.equal(getRecommendations({...prefs,requireNoAlerts:false,budgetMax:12000},[unsafe]).length,1);
+const template={...products[0],price:1000,safetyAlert:{...products[0].safetyAlert,hasAlert:false},certifications:[],reparabilityIndex:5,scores:{quality:5,safety:5,sustainability:5,costBenefit:5,overall:5}};
+const useProfiles=[{...template,id:'work',name:'Notebook para trabalho',category:'notebooks'},{...template,id:'game',name:'Monitor Gamer',category:'monitores'}];
+assert.equal(getRecommendations({...prefs,weights:{quality:1,safety:1,sustainability:1,costBenefit:1},purpose:'produtividade'},useProfiles)[0].product.id,'work');
+assert.equal(getRecommendations({...prefs,weights:{quality:1,safety:1,sustainability:1,costBenefit:1},purpose:'jogos'},useProfiles)[0].product.id,'game');
+const weightProfiles=[{...template,id:'quality',category:'smartphones',scores:{...template.scores,quality:10,safety:1}},{...template,id:'safety',category:'smartphones',scores:{...template.scores,quality:1,safety:10}}];
+assert.equal(getRecommendations({...prefs,purpose:'diaadia',weights:{quality:5,safety:1,sustainability:1,costBenefit:1}},weightProfiles)[0].product.id,'quality');
+assert.equal(getRecommendations({...prefs,purpose:'diaadia',weights:{quality:1,safety:5,sustainability:1,costBenefit:1}},weightProfiles)[0].product.id,'safety');
+console.log('Multiple parts, totals, PSU draw, RAM/M.2 slot limits, copy quantities and 120 recommendation-filter combinations passed.');

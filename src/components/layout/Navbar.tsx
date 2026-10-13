@@ -44,14 +44,25 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between gap-1 sm:gap-2 h-16">
+          {/* Mobile menu comes before the brand */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="xl:hidden p-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+              title="Menu"
+              aria-label="Abrir menu de navegação"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-navigation"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           <button
             type="button"
             onClick={() => handleTabClick('home')}
             aria-label="RevSafe — início"
-            className="shrink-0 rounded-lg select-none"
+            className="shrink-0 rounded-lg select-none mr-auto xl:mr-0"
           >
-            <BrandLogo className="max-[380px]:[&_img]:w-24" />
+            <BrandLogo className="max-[380px]:px-1.5 max-[380px]:[&_img]:w-24" />
           </button>
 
           {/* Desktop Navigation Links - Apenas nomes em texto sem ícones */}
@@ -81,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Right Action: Modo Noturno & Auth */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {/* Dark Mode Toggle */}
             <button
               onClick={onToggleDarkMode}
@@ -114,17 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <AnimatedButton compact className="max-[380px]:px-6" onClick={onOpenAuth}>Entrar</AnimatedButton>
             )}
 
-            {/* Mobile Hamburger Toggle */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="xl:hidden p-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
-              title="Menu"
-              aria-label="Abrir menu de navegação"
-              aria-expanded={isMobileMenuOpen}
-              aria-controls="mobile-navigation"
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+
           </div>
         </div>
       </div>

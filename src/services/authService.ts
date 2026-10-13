@@ -8,9 +8,9 @@ const safeIds = (value: unknown, limit = 100): string[] => Array.isArray(value)
 
 const DEFAULT_DEMO_USER: UserProfile = {
   id: 'usr-demo-01',
-  name: 'Mariana Duarte',
-  email: 'mariana.duarte@exemplo.com.br',
-  avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+  name: 'Filipe',
+  email: 'filipe@example.com',
+  avatar: '/logoR.png',
   savedFavorites: ['prod-sp-01', 'prod-el-01', 'prod-nb-01'],
   savedComparisons: [['prod-sp-01', 'prod-sp-02']],
   preferences: {

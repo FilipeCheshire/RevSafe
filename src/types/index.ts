@@ -63,6 +63,7 @@ export interface Product {
   scores: PillarScores;
   pillarNotes: PillarNotes;
   specs: Record<string, string>;
+  specificationSource?: { title: string; url: string };
   pros: string[];
   cons: string[];
   safetyAlert: SafetyAlert;
@@ -75,7 +76,7 @@ export interface Product {
   createdAt: string;
 }
 
-export type PCPartType = 'cpu' | 'motherboard' | 'ram' | 'gpu' | 'storage' | 'psu' | 'case';
+export type PCPartType = 'cpu' | 'motherboard' | 'ram' | 'gpu' | 'storage' | 'psu' | 'case' | 'monitor';
 
 export interface PCComponent {
   id: string;
@@ -90,11 +91,15 @@ export interface PCComponent {
   ramType?: 'DDR4' | 'DDR5';
   supportedRamType?: 'DDR4' | 'DDR5';
   tdpWatts: number;
+  memorySlots?: number;
+  storageSlots?: number;
+  ramModules?: number;
   recommendedPsuWattage?: number;
   wattage?: number; // Para PSU
   efficiencyRating?: string; // ex: '80 Plus Gold'
   formFactor?: 'ATX' | 'Micro-ATX' | 'Mini-ITX';
   specs: Record<string, string>;
+  specificationSource?: { title: string; url: string };
   scores: {
     quality: number;
     safety: number;
@@ -111,9 +116,10 @@ export interface PCComponent {
 export interface PCBuildState {
   cpu: PCComponent | null;
   motherboard: PCComponent | null;
-  ram: PCComponent | null;
-  gpu: PCComponent | null;
-  storage: PCComponent | null;
+  ram: PCComponent[];
+  gpu: PCComponent[];
+  storage: PCComponent[];
+  monitor: PCComponent[];
   psu: PCComponent | null;
   case: PCComponent | null;
   targetBudget: number;

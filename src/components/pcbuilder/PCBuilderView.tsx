@@ -20,22 +20,27 @@ import {
 } from 'lucide-react';
 import { PCComponent, PCBuildState, PCPartType } from '../../types';
 import { MOCK_PC_COMPONENTS } from '../../data/mockPCComponents';
+import { allowsMultiple, componentsFor, calculateBuildCost, calculateLowestBuildCost, partsListText, totalRamModules } from '../../services/pcBuild';
 import { checkCompatibility, calculateEstimatedPower } from '../../services/compatibilityChecker';
+
+const pickMany = (id: string): PCComponent[] => { const item = MOCK_PC_COMPONENTS.find(c => c.id === id); return item ? [item] : []; };
 
 export const PCBuilderView: React.FC = () => {
   const [build, setBuild] = useState<PCBuildState>({
     cpu: MOCK_PC_COMPONENTS.find((c) => c.id === 'cpu-01') || null,
     motherboard: MOCK_PC_COMPONENTS.find((c) => c.id === 'mobo-02') || null,
-    ram: MOCK_PC_COMPONENTS.find((c) => c.id === 'ram-01') || null,
-    gpu: MOCK_PC_COMPONENTS.find((c) => c.id === 'gpu-02') || null,
-    storage: MOCK_PC_COMPONENTS.find((c) => c.id === 'ssd-01') || null,
+    ram: pickMany('ram-01'),
+    gpu: pickMany('gpu-02'),
+    storage: pickMany('ssd-01'),
     psu: MOCK_PC_COMPONENTS.find((c) => c.id === 'psu-02') || null,
     case: MOCK_PC_COMPONENTS.find((c) => c.id === 'case-01') || null,
+    monitor: [],
     targetBudget: 7000,
     targetPurpose: 'gaming',
   });
 
   const [activeSlot, setActiveSlot] = useState<PCPartType | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [showPriceQuotes, setShowPriceQuotes] = useState<Record<string, boolean>>({});
 
@@ -46,61 +51,46 @@ export const PCBuilderView: React.FC = () => {
   const issues = checkCompatibility(build);
   const powerReport = calculateEstimatedPower(build);
 
-  const totalCost =
-    (build.cpu?.price || 0) +
-    (build.motherboard?.price || 0) +
-    (build.ram?.price || 0) +
-    (build.gpu?.price || 0) +
-    (build.storage?.price || 0) +
-    (build.psu?.price || 0) +
-    (build.case?.price || 0);
+  const totalCost = calculateBuildCost(build);
+  const lowestPossibleTotal = calculateLowestBuildCost(build);
 
-  // Cálculo da melhor cotação combinada (RF-010)
-  const lowestPossibleTotal = [
-    build.cpu,
-    build.motherboard,
-    build.ram,
-    build.gpu,
-    build.storage,
-    build.psu,
-    build.case,
-  ].reduce((acc, comp) => {
-    if (!comp) return acc;
-    if (comp.priceQuotes && comp.priceQuotes.length > 0) {
-      const minQuote = Math.min(...comp.priceQuotes.map((q) => q.price));
-      return acc + minQuote;
-    }
-    return acc + comp.price;
-  }, 0);
+  const budgetUsage = build.targetBudget > 0 ? Math.round(totalCost / build.targetBudget * 100) : 0;
+  const budgetProgress = Math.min(100, budgetUsage);
 
-  const budgetProgress =
-    build.targetBudget > 0 ? Math.min(100, Math.round((totalCost / build.targetBudget) * 100)) : 0;
-
-  const handleSelectComponent = (comp: PCComponent) => {
-    setBuild((prev) => ({
-      ...prev,
-      [comp.type === 'motherboard' ? 'motherboard' : comp.type]: comp,
-    }));
-    setActiveSlot(null);
+  const openPicker = (type: PCPartType, index: number | null = null) => {
+    setActiveIndex(index); setActiveSlot(type);
   };
-
-  const handleRemoveSlot = (type: PCPartType) => {
-    const key = type === 'motherboard' ? 'motherboard' : type;
-    setBuild((prev) => ({
-      ...prev,
-      [key]: null,
-    }));
+  const addAnother = (component: PCComponent) => {
+    if (!allowsMultiple(component.type)) return;
+    const type = component.type;
+    setBuild(prev => ({ ...prev, [type]: [...prev[type], component] }));
+  };
+  const handleSelectComponent = (component: PCComponent) => {
+    const type = component.type;
+    setBuild(prev => {
+      if (!allowsMultiple(type)) return { ...prev, [type]: component };
+      const items = [...prev[type]];
+      if (activeIndex === null) items.push(component); else items[activeIndex] = component;
+      return { ...prev, [type]: items };
+    });
+    setActiveSlot(null); setActiveIndex(null);
+  };
+  const handleRemoveSlot = (type: PCPartType, index: number) => {
+    setBuild(prev => allowsMultiple(type)
+      ? { ...prev, [type]: prev[type].filter((_, n) => n !== index) }
+      : { ...prev, [type]: null });
   };
 
   const handleClearBuild = () => {
     setBuild({
       cpu: null,
       motherboard: null,
-      ram: null,
-      gpu: null,
-      storage: null,
+      ram: [],
+      gpu: [],
+      storage: [],
       psu: null,
       case: null,
+      monitor: [],
       targetBudget: build.targetBudget,
       targetPurpose: build.targetPurpose,
     });
@@ -111,11 +101,12 @@ export const PCBuilderView: React.FC = () => {
       setBuild({
         cpu: MOCK_PC_COMPONENTS.find((c) => c.id === 'cpu-01') || null,
         motherboard: MOCK_PC_COMPONENTS.find((c) => c.id === 'mobo-02') || null,
-        ram: MOCK_PC_COMPONENTS.find((c) => c.id === 'ram-01') || null,
-        gpu: MOCK_PC_COMPONENTS.find((c) => c.id === 'gpu-02') || null,
-        storage: MOCK_PC_COMPONENTS.find((c) => c.id === 'ssd-01') || null,
+        ram: pickMany('ram-01'),
+        gpu: pickMany('gpu-02'),
+        storage: pickMany('ssd-01'),
         psu: MOCK_PC_COMPONENTS.find((c) => c.id === 'psu-02') || null,
         case: MOCK_PC_COMPONENTS.find((c) => c.id === 'case-01') || null,
+        monitor: [],
         targetBudget: 6500,
         targetPurpose: 'gaming',
       });
@@ -123,11 +114,12 @@ export const PCBuilderView: React.FC = () => {
       setBuild({
         cpu: MOCK_PC_COMPONENTS.find((c) => c.id === 'cpu-02') || null,
         motherboard: MOCK_PC_COMPONENTS.find((c) => c.id === 'mobo-01') || null,
-        ram: MOCK_PC_COMPONENTS.find((c) => c.id === 'ram-01') || null,
-        gpu: MOCK_PC_COMPONENTS.find((c) => c.id === 'gpu-01') || null,
-        storage: MOCK_PC_COMPONENTS.find((c) => c.id === 'ssd-02') || null,
+        ram: pickMany('ram-01'),
+        gpu: pickMany('gpu-01'),
+        storage: pickMany('ssd-02'),
         psu: MOCK_PC_COMPONENTS.find((c) => c.id === 'psu-01') || null,
         case: MOCK_PC_COMPONENTS.find((c) => c.id === 'case-01') || null,
+        monitor: [],
         targetBudget: 12000,
         targetPurpose: 'gaming',
       });
@@ -135,11 +127,12 @@ export const PCBuilderView: React.FC = () => {
       setBuild({
         cpu: MOCK_PC_COMPONENTS.find((c) => c.id === 'cpu-04') || null,
         motherboard: MOCK_PC_COMPONENTS.find((c) => c.id === 'mobo-04') || null,
-        ram: MOCK_PC_COMPONENTS.find((c) => c.id === 'ram-02') || null,
-        gpu: MOCK_PC_COMPONENTS.find((c) => c.id === 'gpu-04') || null,
-        storage: MOCK_PC_COMPONENTS.find((c) => c.id === 'ssd-01') || null,
+        ram: pickMany('ram-02'),
+        gpu: pickMany('gpu-04'),
+        storage: pickMany('ssd-01'),
         psu: MOCK_PC_COMPONENTS.find((c) => c.id === 'psu-03') || null,
         case: MOCK_PC_COMPONENTS.find((c) => c.id === 'case-02') || null,
+        monitor: [],
         targetBudget: 3500,
         targetPurpose: 'gaming',
       });
@@ -149,16 +142,12 @@ export const PCBuilderView: React.FC = () => {
   const handleCopyPartsList = () => {
     const lines = [
       `🖥️ Configuração Montada no RevSafe:`,
-      `• Processador: ${build.cpu?.name || 'Não selecionado'} (R$ ${build.cpu?.price || 0})`,
-      `• Placa-Mãe: ${build.motherboard?.name || 'Não selecionada'} (R$ ${build.motherboard?.price || 0})`,
-      `• Memória RAM: ${build.ram?.name || 'Não selecionada'} (R$ ${build.ram?.price || 0})`,
-      `• Placa de Vídeo: ${build.gpu?.name || 'Não selecionada'} (R$ ${build.gpu?.price || 0})`,
-      `• Armazenamento: ${build.storage?.name || 'Não selecionado'} (R$ ${build.storage?.price || 0})`,
-      `• Fonte de Alimentação: ${build.psu?.name || 'Não selecionada'} (R$ ${build.psu?.price || 0})`,
-      `• Gabinete: ${build.case?.name || 'Não selecionado'} (R$ ${build.case?.price || 0})`,
+      ...partsListText(build),
       `\n💰 Custo Total: R$ ${totalCost.toLocaleString('pt-BR')}`,
       `⚡ Consumo Estimado: ~${powerReport.estimatedDrawWatts}W | Fonte Recomendada: ${powerReport.recommendedPsuWatts}W`,
-      `🛡️ Status: ${issues.filter((i) => i.type === 'error').length === 0 ? '100% Compatível' : 'Possui Incompatibilidades'}`,
+      `🛡️ Status: ${issues.filter((i) => i.type === 'error').length === 0 ? 'Sem conflitos automáticos detectados; confira as observações' : 'Possui Incompatibilidades'}`,
+      ...issues.map(issue => `• ${issue.title}: ${issue.description}`),
+      'Monitores usam alimentação externa; o consumo acima é apenas dos componentes alimentados pela fonte do PC.',
     ];
     navigator.clipboard?.writeText(lines.join('\n'));
     setCopied(true);
@@ -173,8 +162,10 @@ export const PCBuilderView: React.FC = () => {
     { type: 'storage', label: 'Armazenamento (SSD)', icon: HardDrive },
     { type: 'psu', label: 'Fonte de Alimentação (PSU)', icon: Zap },
     { type: 'case', label: 'Gabinete (Case)', icon: Box },
+    { type: 'monitor', label: 'Monitores', icon: MonitorCheck },
   ];
 
+  const hasWarnings = issues.some(i => i.type === 'warning');
   const hasCriticalErrors = issues.some((i) => i.type === 'error');
 
   return (
@@ -194,18 +185,19 @@ export const PCBuilderView: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
           {/* Orçamento Alvo */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            <label htmlFor="target-budget" className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
               Orçamento Pretendido
             </label>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-600 dark:text-slate-400">R$</span>
+              <span aria-hidden="true" className="shrink-0 whitespace-nowrap text-xs font-bold text-slate-600 dark:text-slate-400">R$</span>
               <input
+                id="target-budget"
                 type="number"
                 value={build.targetBudget || ''}
                 onChange={(e) =>
                   setBuild({ ...build, targetBudget: parseInt(e.target.value) || 0 })
                 }
-                className="w-full py-2 px-3 rounded-lg border border-slate-300 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full min-w-0 flex-1 py-2 px-3 rounded-lg border border-slate-300 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Ex: 5000"
               />
             </div>
@@ -264,15 +256,15 @@ export const PCBuilderView: React.FC = () => {
         <div className="pt-2 border-t border-slate-100 dark:border-slate-850">
           <div className="flex items-center justify-between text-xs mb-1.5 font-medium">
             <span className="text-slate-600 dark:text-slate-400">
-              Total Atual: <b className="text-slate-900 dark:text-white text-sm">R$ {totalCost.toLocaleString('pt-BR')}</b>
+              Total Atual: <b data-testid="pc-total-price" className="text-slate-900 dark:text-white text-sm">R$ {totalCost.toLocaleString('pt-BR')}</b>
               {lowestPossibleTotal < totalCost && (
                 <span className="ml-2 text-blue-600 dark:text-blue-400 font-semibold">
                   (Melhor cotação entre lojas: R$ {lowestPossibleTotal.toLocaleString('pt-BR')})
                 </span>
               )}
             </span>
-            <span className={totalCost > build.targetBudget ? 'text-rose-600 font-bold' : 'text-blue-600 dark:text-blue-400 font-bold'}>
-              {budgetProgress}% do orçamento utilizado
+            <span className={totalCost > build.targetBudget ? 'text-rose-700 dark:text-rose-300 font-bold' : 'text-blue-600 dark:text-blue-400 font-bold'}>
+              {budgetUsage}% do orçamento utilizado
             </span>
           </div>
           <div className="w-full bg-slate-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden">
@@ -303,16 +295,22 @@ export const PCBuilderView: React.FC = () => {
             </button>
           </div>
 
-          {slotsConfig.map((slot) => {
-            const comp = build[slot.type === 'motherboard' ? 'motherboard' : slot.type];
+          {slotsConfig.flatMap((slot) => {
+            const selected = componentsFor(build, slot.type);
+            return (selected.length ? selected : [null]).map((comp, index) => {
             const Icon = slot.icon;
             const isQuotesOpen = comp ? showPriceQuotes[comp.id] : false;
 
             return (
               <div
-                key={slot.type}
+                key={`${slot.type}-${index}`}
+                data-testid={`pc-item-${slot.type}`}
                 className="bg-white dark:bg-slate-950 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700"
               >
+                {index === 0 && allowsMultiple(slot.type) && selected.length > 0 && <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{slot.label}: {selected.length} {slot.type === 'ram' ? `kit(s), ${totalRamModules(build)} módulos` : 'item(ns)'}</span>
+                  <button onClick={() => openPicker(slot.type)} aria-label={`Adicionar item em ${slot.label}`} className="inline-flex items-center gap-1 rounded-lg bg-brand-action px-3 py-2 text-xs font-semibold text-white"><Plus className="w-3.5 h-3.5" /> Adicionar</button>
+                </div>}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5 flex-1 min-w-0 w-full sm:w-auto">
                     <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-400 shrink-0 overflow-hidden">
@@ -341,6 +339,7 @@ export const PCBuilderView: React.FC = () => {
                             <span>{comp.brand}</span>
                             {comp.socket && <span>• Soquete {comp.socket}</span>}
                             {comp.ramType && <span>• {comp.ramType}</span>}
+                            {comp.ramModules && <span>• {comp.ramModules} módulos por kit</span>}
                             {comp.supportedRamType && <span>• Suporta {comp.supportedRamType}</span>}
                             {comp.tdpWatts > 0 && <span>• {comp.tdpWatts}W TDP</span>}
                             {comp.wattage && <span>• {comp.wattage}W</span>}
@@ -377,7 +376,7 @@ export const PCBuilderView: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <button
                         type="button"
-                        onClick={() => setActiveSlot(slot.type)}
+                        onClick={() => openPicker(slot.type, comp && allowsMultiple(slot.type) ? index : null)}
                         className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                           comp
                             ? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -387,10 +386,11 @@ export const PCBuilderView: React.FC = () => {
                         {comp ? 'Trocar' : '+ Escolher'}
                       </button>
 
+                      {comp && allowsMultiple(slot.type) && <button type="button" onClick={() => addAnother(comp)} aria-label={`Adicionar outro ${comp.name}`} title="Adicionar unidade idêntica" className="p-2 rounded-lg text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950"><Plus className="w-4 h-4" /></button>}
                       {comp && (
                         <button
                           type="button"
-                          onClick={() => handleRemoveSlot(slot.type)}
+                          onClick={() => handleRemoveSlot(slot.type, index)}
                           className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-rose-500 rounded-lg transition-colors"
                           title="Remover"
                         >
@@ -401,11 +401,19 @@ export const PCBuilderView: React.FC = () => {
                   </div>
                 </div>
 
+                {comp && <details className="mt-3 border-t border-slate-200 dark:border-slate-800 pt-3">
+                  <summary className="cursor-pointer text-xs font-semibold text-blue-700 dark:text-blue-300">Especificações do componente</summary>
+                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 text-xs">
+                    {Object.entries(comp.specs).map(([key, value]) => <div key={key} className="min-w-0"><dt className="font-semibold text-slate-700 dark:text-slate-300">{key}</dt><dd className="mt-1 text-slate-600 dark:text-slate-400 break-words">{value}</dd></div>)}
+                  </dl>
+                  {comp.specificationSource && <a href={comp.specificationSource.url} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-xs text-blue-700 dark:text-blue-300 underline">Ficha do fabricante</a>}
+                </details>}
+
                 {/* Subtabela de Cotações de Preço em Lojas (RF-010) */}
                 {comp && isQuotesOpen && comp.priceQuotes && (
                   <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-850 animate-in fade-in text-xs">
                     <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1">
-                      <ShoppingCart className="w-3.5 h-3.5 text-blue-600" />
+                      <ShoppingCart className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       <span>Comparação de Preços entre Lojas (RF-010)</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -422,7 +430,7 @@ export const PCBuilderView: React.FC = () => {
                           <div className="text-right">
                             <span className="font-bold text-slate-900 dark:text-white">R$ {q.price.toLocaleString('pt-BR')}</span>
                             {q.isLowestPrice && (
-                              <span className="block text-[9px] font-bold text-blue-600 uppercase">Menor</span>
+                              <span className="block text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase">Menor</span>
                             )}
                           </div>
                         </div>
@@ -432,6 +440,7 @@ export const PCBuilderView: React.FC = () => {
                 )}
               </div>
             );
+            });
           })}
         </div>
 
@@ -439,17 +448,19 @@ export const PCBuilderView: React.FC = () => {
         <div className="min-w-0 lg:col-span-4 space-y-6">
           {/* Card de Status de Compatibilidade */}
           <div className="bg-white dark:bg-slate-950 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <span className="font-bold text-sm text-slate-900 dark:text-white">
-                Verificação de Compatibilidade (RF-009)
-              </span>
+            <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h2 className="min-w-0 font-bold text-sm text-slate-900 dark:text-white">
+                Verificação de compatibilidade
+              </h2>
               {hasCriticalErrors ? (
-                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">
+                <span className="inline-flex shrink-0 whitespace-nowrap text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">
                   Incompatível
                 </span>
+              ) : hasWarnings ? (
+                <span className="inline-flex shrink-0 whitespace-nowrap text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">Verificar</span>
               ) : (
-                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" />
+                <span className="inline-flex shrink-0 whitespace-nowrap text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 shrink-0" />
                   Compatível
                 </span>
               )}
@@ -457,11 +468,11 @@ export const PCBuilderView: React.FC = () => {
 
             {issues.length === 0 ? (
               <div className="p-3.5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 text-blue-900 dark:text-blue-300 text-xs flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-bold mb-0.5">Componentes 100% Compatíveis</div>
+                  <div className="font-bold mb-0.5">Nenhum conflito automático detectado</div>
                   <p className="text-blue-800 dark:text-blue-400 leading-relaxed text-[11px]">
-                    Soquete, padrão de memória RAM e demanda elétrica conferem plenamente.
+                    Soquete, memória e demanda elétrica atendem às verificações disponíveis. Confirme as medidas e conexões nas fichas dos fabricantes.
                   </p>
                 </div>
               </div>
@@ -501,10 +512,10 @@ export const PCBuilderView: React.FC = () => {
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-1.5">
-                  <Zap className="w-4 h-4 text-blue-600" />
+                  <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   <span>Consumo Estimado (TDP)</span>
                 </div>
-                <span>~{powerReport.estimatedDrawWatts} Watts</span>
+                <span data-testid="pc-power-draw">~{powerReport.estimatedDrawWatts} Watts</span>
               </div>
 
               <div className="text-[11px] text-slate-600 dark:text-slate-400 flex justify-between">
@@ -520,15 +531,17 @@ export const PCBuilderView: React.FC = () => {
                   powerReport.status === 'safe'
                     ? 'text-blue-600 dark:text-blue-400'
                     : powerReport.status === 'tight'
-                    ? 'text-amber-600'
+                    ? 'text-amber-700 dark:text-amber-300'
                     : powerReport.status === 'critical'
-                    ? 'text-rose-600'
+                    ? 'text-rose-700 dark:text-rose-300'
                     : 'text-slate-600 dark:text-slate-400'
                 }`}>
                   {build.psu ? `${build.psu.wattage}W (${build.psu.efficiencyRating || '80 Plus'})` : 'Nenhuma'}
                 </span>
               </div>
             </div>
+
+            <p className="text-[11px] text-slate-600 dark:text-slate-400">Monitores entram no preço total, mas usam alimentação externa e não são somados à potência da fonte do PC.</p>
 
             {/* Ação de Cópia */}
             <div className="pt-2">
@@ -537,7 +550,7 @@ export const PCBuilderView: React.FC = () => {
                 onClick={handleCopyPartsList}
                 className="w-full py-2 px-3 rounded-xl border border-slate-300 dark:border-slate-800 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 text-slate-800 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
-                {copied ? <Check className="w-4 h-4 text-blue-600" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" /> : <Copy className="w-4 h-4" />}
                 <span>{copied ? 'Copiado para área de transferência!' : 'Copiar Configuração Completa'}</span>
               </button>
             </div>
@@ -548,12 +561,13 @@ export const PCBuilderView: React.FC = () => {
       {/* Modal de Seleção de Peças */}
       {activeSlot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white dark:bg-slate-950 rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800">
+          <div role="dialog" aria-modal="true" aria-label="Selecionar componente" className="bg-white dark:bg-slate-950 rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <h3 className="font-bold text-base text-slate-900 dark:text-white capitalize">
                 Selecionar {slotsConfig.find((s) => s.type === activeSlot)?.label}
               </h3>
               <button
+                aria-label="Fechar seleção"
                 onClick={() => setActiveSlot(null)}
                 className="p-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-600"
               >
@@ -588,24 +602,25 @@ export const PCBuilderView: React.FC = () => {
                 }
 
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={comp.id}
                     onClick={() => handleSelectComponent(comp)}
-                    className={`p-3.5 rounded-xl border flex items-center justify-between gap-4 cursor-pointer transition-all ${
+                    className={`p-3.5 rounded-xl border w-full text-left flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer transition-all ${
                       isIncompatible
                         ? 'border-rose-200 dark:border-rose-900 bg-rose-50/40 dark:bg-rose-950/20 opacity-100 hover:opacity-100 hover:border-rose-400'
                         : 'border-slate-200 dark:border-slate-800 hover:border-blue-500 hover:bg-blue-50/30 dark:hover:bg-blue-950/20'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
                       <img
                         src={comp.image}
                         alt={comp.name}
-                        className="w-12 h-12 rounded-lg object-cover bg-slate-100"
+                        className="w-12 h-12 rounded-lg object-cover bg-slate-100 shrink-0"
                       />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-blue-600 uppercase">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">
                             {comp.brand}
                           </span>
                           {isIncompatible && (
@@ -631,11 +646,11 @@ export const PCBuilderView: React.FC = () => {
                       <div className="font-extrabold text-sm text-slate-900 dark:text-white">
                         R$ {comp.price.toLocaleString('pt-BR')}
                       </div>
-                      <span className="text-xs font-semibold text-blue-600">
+                      <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
                         Selecionar
                       </span>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>

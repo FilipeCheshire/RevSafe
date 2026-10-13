@@ -1,6 +1,7 @@
+import { completeSpecifications } from './specificationDetails';
 import { Product } from '../types';
 
-export const MOCK_PRODUCTS: Product[] = [
+const BASE_MOCK_PRODUCTS: Product[] = [
   // SMARTPHONES
   {
     id: 'prod-sp-01',
@@ -909,3 +910,5 @@ export const MOCK_PRODUCTS: Product[] = [
     createdAt: '2023-09-01',
   },
 ];
+
+export const MOCK_PRODUCTS: Product[] = BASE_MOCK_PRODUCTS.map(completeSpecifications);

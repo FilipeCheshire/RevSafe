@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   Filter,
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { Product, Category } from '../../types';
 import { MOCK_PRODUCTS } from '../../data/mockProducts';
+import { matchesProductSearch } from '../../services/productSearch';
 import { ProductCard } from '../products/ProductCard';
 
 interface CatalogViewProps {
@@ -35,7 +36,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>(initialCategory);
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [minScore, setMinScore] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(10000);
+  const [maxPrice, setMaxPrice] = useState<number>(Infinity);
   const [onlyNoAlerts, setOnlyNoAlerts] = useState<boolean>(false);
   const [onlyTopEco, setOnlyTopEco] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<
@@ -44,26 +45,15 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
+  useEffect(() => { setSearchTerm(initialSearch); setSelectedCategory(initialCategory); }, [initialSearch, initialCategory]);
+
   const allBrands = useMemo(() => {
     return Array.from(new Set(MOCK_PRODUCTS.map((p) => p.brand))).sort();
   }, []);
 
   const filteredProducts = useMemo(() => {
     return MOCK_PRODUCTS.filter((prod) => {
-      if (searchTerm.trim()) {
-        const query = searchTerm.toLowerCase();
-        const matchesName = prod.name.toLowerCase().includes(query);
-        const matchesBrand = prod.brand.toLowerCase().includes(query);
-        const matchesCategory = prod.categoryLabel.toLowerCase().includes(query);
-        const matchesSummary = prod.summary.toLowerCase().includes(query);
-        const matchesSpecs = Object.values(prod.specs).some((v) =>
-          v.toLowerCase().includes(query)
-        );
-
-        if (!matchesName && !matchesBrand && !matchesCategory && !matchesSummary && !matchesSpecs) {
-          return false;
-        }
-      }
+      if (!matchesProductSearch(prod, searchTerm)) return false;
 
       if (selectedCategory !== 'all' && prod.category !== selectedCategory) {
         return false;
@@ -115,7 +105,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
     setSelectedCategory('all');
     setSelectedBrand('all');
     setMinScore(0);
-    setMaxPrice(10000);
+    setMaxPrice(Infinity);
     setOnlyNoAlerts(false);
     setOnlyTopEco(false);
     setSortBy('overall');
@@ -126,7 +116,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
     selectedCategory !== 'all' ||
     selectedBrand !== 'all' ||
     minScore > 0 ||
-    maxPrice < 10000 ||
+    Number.isFinite(maxPrice) ||
     onlyNoAlerts ||
     onlyTopEco;
 
@@ -273,16 +263,16 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
               <div className="flex justify-between items-center text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
                 <span>Preço Máximo:</span>
                 <span className="text-blue-600 dark:text-blue-400 font-bold">
-                  Até R$ {maxPrice.toLocaleString('pt-BR')}
+                  {Number.isFinite(maxPrice) ? `Até R$ ${maxPrice.toLocaleString('pt-BR')}` : 'Sem limite'}
                 </span>
               </div>
               <input
                 type="range"
                 min="400"
-                max="10000"
+                max="20000"
                 step="200"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(parseInt(e.target.value))}
+                value={Number.isFinite(maxPrice) ? maxPrice : 20000}
+                onChange={(e) => setMaxPrice(Number(e.target.value) === 20000 ? Infinity : Number(e.target.value))}
                 className="w-full accent-blue-600 cursor-pointer"
               />
             </div>

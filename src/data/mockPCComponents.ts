@@ -1,6 +1,8 @@
+import { MOCK_PRODUCTS } from './mockProducts';
+import { completeSpecifications } from './specificationDetails';
 import { PCComponent } from '../types';
 
-export const MOCK_PC_COMPONENTS: PCComponent[] = [
+const BASE_MOCK_PC_COMPONENTS: PCComponent[] = [
   // PROCESSADORES (CPUs)
   {
     id: 'cpu-01',
@@ -840,4 +842,18 @@ export const MOCK_PC_COMPONENTS: PCComponent[] = [
     ],
     isSimulated: true,
   },
+];
+
+const boardCapacity: Record<string, { memorySlots: number; storageSlots: number }> = {
+  'mobo-01': { memorySlots: 4, storageSlots: 3 }, 'mobo-02': { memorySlots: 2, storageSlots: 2 },
+  'mobo-03': { memorySlots: 4, storageSlots: 2 }, 'mobo-04': { memorySlots: 4, storageSlots: 2 },
+};
+const monitors: PCComponent[] = MOCK_PRODUCTS.filter(p => p.category === 'monitores').map(p => ({
+  id: `monitor-${p.id}`, type: 'monitor', typeLabel: 'Monitor', name: p.name, brand: p.brand,
+  price: p.price, image: p.image, tdpWatts: 0, specs: p.specs, specificationSource: p.specificationSource,
+  scores: p.scores, pros: p.pros, cons: p.cons, priceQuotes: p.priceQuotes, isSimulated: true,
+}));
+export const MOCK_PC_COMPONENTS: PCComponent[] = [
+  ...BASE_MOCK_PC_COMPONENTS.map(c => ({ ...completeSpecifications(c), ...boardCapacity[c.id], ...(c.type === 'ram' ? { ramModules: 2 } : {}) })),
+  ...monitors,
 ];

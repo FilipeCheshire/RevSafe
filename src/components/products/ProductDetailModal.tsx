@@ -342,6 +342,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* Tab 2: Ficha Técnica */}
           {activeTab === 'specs' && (
             <div className="animate-in fade-in duration-200">
+              {product.specificationSource && <p className="mb-3 text-xs text-slate-600 dark:text-slate-400">Referência dos dados físicos: <a href={product.specificationSource.url} target="_blank" rel="noopener noreferrer" className="text-blue-700 dark:text-blue-300 underline">{product.specificationSource.title}</a>. Medidas podem variar por configuração.</p>}
+
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
                 <table className="w-full text-xs text-left">
                   <tbody>

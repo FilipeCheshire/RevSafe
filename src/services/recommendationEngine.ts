@@ -1,12 +1,16 @@
 import { Product, RecommendationPreferences, RecommendationItem } from '../types';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
 
+export function hasEnvironmentalCertification(product: Product): boolean {
+  return product.certifications.some(c => /energy star|epeat|tco|ecologo|procel/i.test(c));
+}
+
 export function getRecommendations(
   prefs: RecommendationPreferences,
   productsList: Product[] = MOCK_PRODUCTS
 ): RecommendationItem[] {
   // 1. Filtragem inicial
-  let filtered = productsList.filter((prod) => {
+  const filtered = productsList.filter((prod) => {
     if (prefs.category !== 'all' && prod.category !== prefs.category) {
       return false;
     }
@@ -15,20 +19,14 @@ export function getRecommendations(
       return false;
     }
 
-    // Permitir produtos até 15% acima do orçamento para fins de comparação honesta de valor agregado
-    if (prefs.budgetMax > 0 && prod.price > prefs.budgetMax * 1.18) {
+    if (prefs.requireEcoCert && !hasEnvironmentalCertification(prod)) return false;
+
+    if (Number.isFinite(prefs.budgetMax) && prod.price > Math.max(0, prefs.budgetMax)) {
       return false;
     }
 
     return true;
   });
-
-  if (filtered.length === 0) {
-    // Se nenhum passou no filtro estrito de orçamento, buscar os mais próximos
-    filtered = productsList.filter(
-      (p) => prefs.category === 'all' || p.category === prefs.category
-    );
-  }
 
   // 2. Cálculo dos pesos normalizados
   const totalWeight =
@@ -43,7 +41,7 @@ export function getRecommendations(
   const wCost = (prefs.weights.costBenefit || 1) / totalWeight;
 
   // 3. Avaliação e pontuação
-  const evaluated: RecommendationItem[] = filtered.map((prod) => {
+  const evaluated: (RecommendationItem & { rankingScore: number })[] = filtered.map((prod) => {
     let score =
       prod.scores.quality * 10 * wQuality +
       prod.scores.safety * 10 * wSafety +
@@ -53,22 +51,29 @@ export function getRecommendations(
     const reasons: string[] = [];
     const tradeoffs: string[] = [];
 
-    // Ajuste por orçamento
-    if (prefs.budgetMax > 0) {
-      if (prod.price <= prefs.budgetMax) {
-        const savingsPct = Math.round(((prefs.budgetMax - prod.price) / prefs.budgetMax) * 100);
-        if (savingsPct >= 20) {
-          score += 4;
-          reasons.push(`Economia de ${savingsPct}% em relação ao teto do seu orçamento.`);
-        } else {
-          score += 2;
-          reasons.push('Se encaixa perfeitamente dentro da margem de investimento informada.');
-        }
-      } else {
-        const overPct = Math.round(((prod.price - prefs.budgetMax) / prefs.budgetMax) * 100);
-        score -= overPct * 0.4;
-        tradeoffs.push(`Preço R$ ${(prod.price - prefs.budgetMax).toLocaleString('pt-BR')} acima do orçamento inicial.`);
-      }
+    // Purpose changes ranking; it never relaxes explicit filters.
+    let purposeBonus = 0;
+    if (prefs.purpose === 'produtividade') {
+      purposeBonus = prod.category === 'notebooks' ? 6 : prod.category === 'monitores' ? 4 : prod.category === 'smartphones' ? 2 : 0;
+      if (purposeBonus) reasons.push('Perfil de trabalho e estudos: prioridade para esta categoria.');
+    } else if (prefs.purpose === 'jogos') {
+      purposeBonus = /gamer|odyssey/i.test(prod.name) ? 8 : prod.category === 'smartphones' && /120Hz|144Hz/i.test(prod.specs.Tela || '') ? 4 : 0;
+      if (purposeBonus) reasons.push('Perfil de jogos: prioridade para características de tela voltadas a jogos no catálogo demonstrativo.');
+    } else if (prefs.purpose === 'diaadia') {
+      purposeBonus = prod.category === 'eletrodomesticos' ? 4 : prod.category === 'smartphones' ? 2 : 0;
+      if (purposeBonus) reasons.push('Perfil doméstico: prioridade para produtos de uso cotidiano.');
+    } else if (prefs.purpose === 'longevidade') {
+      purposeBonus = (prod.scores.quality + prod.reparabilityIndex) * 0.3;
+      reasons.push('Perfil de durabilidade: qualidade e índice de reparabilidade considerados na prioridade.');
+    }
+    score += purposeBonus;
+
+    if (Number.isFinite(prefs.budgetMax) && prefs.budgetMax > 0) {
+      const savingsPct = Math.round((prefs.budgetMax - prod.price) / prefs.budgetMax * 100);
+      score += savingsPct >= 20 ? 4 : 2;
+      reasons.push(savingsPct >= 20
+        ? `Economia de ${savingsPct}% em relação ao teto do orçamento.`
+        : 'Dentro do orçamento máximo informado.');
     }
 
     // Alinhamento com pesos do usuário
@@ -79,7 +84,7 @@ export function getRecommendations(
 
     if (prefs.weights.sustainability >= 4 && prod.scores.sustainability >= 8.8) {
       score += 3;
-      reasons.push(`Alto índice ecológico com selo de eficiência ${prod.energyClass || 'A'} e reparabilidade de ${prod.reparabilityIndex}/10.`);
+      reasons.push(`Alto índice ecológico com selo de eficiência ${prod.energyClass || 'não informado'} e reparabilidade de ${prod.reparabilityIndex}/10.`);
     }
 
     if (prefs.weights.quality >= 4 && prod.scores.quality >= 9.2) {
@@ -115,6 +120,7 @@ export function getRecommendations(
 
     return {
       product: prod,
+      rankingScore: score,
       matchScore,
       reasons,
       tradeoffs,
@@ -123,12 +129,12 @@ export function getRecommendations(
   });
 
   // Ordenar decrescente pelo matchScore
-  evaluated.sort((a, b) => b.matchScore - a.matchScore);
+  evaluated.sort((a, b) => b.rankingScore - a.rankingScore || a.product.price - b.product.price);
 
   // Garantir que o top 1 seja explicitamente marcado como Melhor Compatibilidade se tiver boa pontuação
   if (evaluated.length > 0 && evaluated[0].matchScore >= 80) {
     evaluated[0].tag = 'Melhor Compatibilidade';
   }
 
-  return evaluated;
+  return evaluated.map(({ rankingScore: _rankingScore, ...item }) => item);
 }

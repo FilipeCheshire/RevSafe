@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Sun, Moon } from 'lucide-react';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HomeView } from './components/home/HomeView';
@@ -23,7 +24,6 @@ export default function App() {
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [catalogInitialCategory, setCatalogInitialCategory] = useState<Category | 'all'>('all');
   const [catalogSearch, setCatalogSearch] = useState('');
   const [chatInitialQuestion, setChatInitialQuestion] = useState<string | null>(null);
@@ -102,6 +102,7 @@ export default function App() {
   };
 
   const handleSelectCategoryFromHome = (cat: Category) => {
+    setCatalogSearch('');
     setCatalogInitialCategory(cat);
     setCurrentTab('catalog');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -118,6 +119,25 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (!themeReady) {
+    return <div className="min-h-[100dvh] bg-slate-50 dark:bg-slate-950" role="status" aria-label="Carregando RevSafe" />;
+  }
+
+  if (!user) {
+    return (
+      <main className="relative min-h-[100dvh] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
+        <button type="button" onClick={toggleDarkMode} aria-label="Alternar tema claro e escuro" className="absolute right-4 top-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-slate-700 dark:text-slate-200">
+          {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </button>
+        <AuthModal fullPage isOpen onClose={() => {}} onSuccess={() => {
+          setCurrentTab('home');
+          setUser(authService.getCurrentUser());
+          window.scrollTo({ top: 0 });
+        }} />
+      </main>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white transition-colors">
       {/* Top Navbar */}
@@ -126,8 +146,15 @@ export default function App() {
         onNavigateTab={handleNavigateTab}
         comparedCount={comparedIds.length}
         user={user}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
-        onLogout={() => authService.logout()}
+        onOpenAuth={() => {}}
+        onLogout={() => {
+          authService.logout();
+          setUser(null);
+          setCurrentTab('home');
+          setSelectedProduct(null);
+          setIsDetailModalOpen(false);
+          setChatInitialQuestion(null);
+        }}
         isDarkMode={isDarkMode}
         onToggleDarkMode={toggleDarkMode}
       />
@@ -212,13 +239,6 @@ export default function App() {
         isFavorite={selectedProduct ? favoritesIds.includes(selectedProduct.id) : false}
         onToggleFavorite={handleToggleFavorite}
         onAskChatbot={handleAskChatbotAboutProduct}
-      />
-
-      {/* Modal de Login / Cadastro */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={() => setUser(authService.getCurrentUser())}
       />
 
       {/* Footer */}

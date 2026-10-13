@@ -1,4 +1,4 @@
-﻿import { createHash } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import nextEnv from '@next/env';
@@ -41,6 +41,6 @@ const headers = [
   { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
 ];
 const config = JSON.parse(await readFile('firebase.json', 'utf8'));
-config.hosting.headers = [{ source: '**', headers }, ...config.hosting.headers.filter(h => h.source !== '**')];
+config.hosting.headers = [{ source: '**', headers }, ...(config.hosting.headers ?? []).filter(h => h.source !== '**')];
 await writeFile('firebase.json', JSON.stringify(config, null, 2) + '\n');
 console.log(`Security headers generated with ${hashes.size} inline script hashes.`);

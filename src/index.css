@@ -56,7 +56,8 @@ main { overflow-wrap: anywhere; }
   box-shadow: 0 0 0 1px var(--color-brand);
   overflow: hidden;
   isolation: isolate;
-  transition: border-radius .6s cubic-bezier(.23, 1, .32, 1), box-shadow .6s cubic-bezier(.23, 1, .32, 1), transform .2s ease;
+  --arrow-inset: 12px;
+  transition: transform .16s ease;
 }
 .animated-button svg {
   position: absolute;
@@ -65,38 +66,38 @@ main { overflow-wrap: anywhere; }
   fill: currentColor;
   z-index: 2;
   pointer-events: none;
-  transition: left .8s cubic-bezier(.23, 1, .32, 1), right .8s cubic-bezier(.23, 1, .32, 1);
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform .32s cubic-bezier(.23, 1, .32, 1), opacity .2s ease;
 }
-.animated-button .arr-1 { right: 12px; }
-.animated-button .arr-2 { left: -25%; }
+.animated-button .arr-1 { right: var(--arrow-inset); }
+.animated-button .arr-2 { left: var(--arrow-inset); transform: translate(-40px, -50%); opacity: 0; }
 .animated-button .text {
   position: relative;
   z-index: 2;
   transform: translateX(-8px);
-  transition: transform .8s cubic-bezier(.23, 1, .32, 1);
+  transition: transform .32s cubic-bezier(.23, 1, .32, 1);
 }
 .animated-button .circle {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  width: 320%;
-  aspect-ratio: 1;
+  inset: 0;
+  transform: scale(.85);
   background: #071940;
-  border-radius: 50%;
+  border-radius: inherit;
   opacity: 0;
   z-index: 0;
   pointer-events: none;
-  transition: transform .8s cubic-bezier(.23, 1, .32, 1), opacity .4s ease;
+  transition: transform .32s cubic-bezier(.23, 1, .32, 1), opacity .2s ease;
 }
-.animated-button:is(:hover, :focus-visible):enabled { border-radius: 12px; box-shadow: 0 0 0 4px transparent; }
-.animated-button:is(:hover, :focus-visible):enabled .arr-1 { right: -25%; }
-.animated-button:is(:hover, :focus-visible):enabled .arr-2 { left: 12px; }
+.animated-button:is(:hover, :focus-visible):enabled .arr-1 { transform: translate(40px, -50%); opacity: 0; }
+.animated-button:is(:hover, :focus-visible):enabled .arr-2 { transform: translate(0, -50%); opacity: 1; }
 .animated-button:is(:hover, :focus-visible):enabled .text { transform: translateX(8px); }
-.animated-button:is(:hover, :focus-visible):enabled .circle { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-.animated-button:active:enabled { transform: scale(.96); box-shadow: 0 0 0 3px var(--color-brand); }
+.animated-button:is(:hover, :focus-visible):enabled .circle { transform: scale(1); opacity: 1; }
+.animated-button:active:enabled { transform: scale(.98); }
 .animated-button:disabled { opacity: .6; cursor: not-allowed; }
-.animated-button--compact { padding: 9px 28px; font-size: 12px; }
+.animated-button--compact { --arrow-inset: 8px; padding: 9px 28px; font-size: 12px; }
 .animated-button--compact svg { width: 16px; height: 16px; }
-.animated-button--compact .arr-1 { right: 8px; }
-.animated-button--compact:is(:hover, :focus-visible):enabled .arr-2 { left: 8px; }
+
+/* The search wrapper owns the focus indicator, including mobile browsers. */
+.home-search-input:focus, .home-search-input:focus-visible { outline: none; box-shadow: none; }
+.home-search-input::-webkit-search-decoration { -webkit-appearance: none; }

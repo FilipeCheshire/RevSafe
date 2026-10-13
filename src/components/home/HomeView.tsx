@@ -7,7 +7,6 @@ import {
   Coins,
   ArrowRight,
   Scale,
-  Sparkles,
   Cpu,
   AlertTriangle,
   Smartphone,
@@ -77,18 +76,25 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 e.preventDefault();
                 onSearch(searchQuery);
               }}
-              className="relative flex items-center shadow-md rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 p-1.5"
+              role="search"
+              aria-label="Busca de produtos"
+              className="flex flex-col sm:flex-row sm:items-center gap-3"
             >
-              <Search className="w-4 h-4 text-slate-600 dark:text-slate-400 ml-3 shrink-0" />
-              <input
-                aria-label="Pesquisar produtos"
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Pesquisar smartphone, notebook, air fryer, monitor..."
-                className="w-full min-w-0 py-2.5 px-3 text-xs sm:text-sm text-slate-900 dark:text-white bg-transparent focus:outline-none"
-              />
-              <AnimatedButton type="submit" compact>Buscar</AnimatedButton>
+              <div className="min-w-0 w-full flex-1 flex items-center rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/25 transition-colors">
+                <Search aria-hidden="true" className="w-5 h-5 text-slate-600 dark:text-slate-400 ml-3 shrink-0" />
+                <input
+                  aria-label="Pesquisar produtos"
+                  type="search"
+                  enterKeyHint="search"
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Produto, marca ou categoria"
+                  className="home-search-input block min-w-0 w-full flex-1 min-h-12 py-3 px-3 text-base text-slate-900 dark:text-white bg-transparent rounded-xl appearance-none"
+                />
+              </div>
+              <AnimatedButton type="submit" className="w-full sm:w-auto min-h-12">Buscar</AnimatedButton>
             </form>
           </div>
 
@@ -295,9 +301,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             className="p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 transition-all cursor-pointer group shadow-sm flex flex-col justify-between"
           >
             <div>
-              <div className="p-2.5 rounded-xl bg-brand-action text-white w-fit mb-3">
-                <Sparkles className="w-5 h-5" />
-              </div>
               <h3 className="font-bold text-base text-slate-900 dark:text-white">
                 Recomendações
               </h3>

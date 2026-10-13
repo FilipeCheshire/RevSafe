@@ -9,11 +9,11 @@ import {
   Coins,
   Check,
   AlertCircle,
-  Sparkles,
   ArrowRight,
   Share2
 } from 'lucide-react';
 import { Product } from '../../types';
+import { MobileComparison } from './MobileComparison';
 import { MOCK_PRODUCTS } from '../../data/mockProducts';
 
 interface CompareViewProps {
@@ -134,8 +134,10 @@ export const CompareView: React.FC<CompareViewProps> = ({
         </div>
       </div>
 
+      <MobileComparison products={comparedProducts} onRemove={onRemoveProduct} onOpenDetails={onOpenProductDetail} />
+
       {/* Tabela Comparativa */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-950">
+      <div className="hidden lg:block overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-950">
         <table className="w-full border-collapse">
           {/* Header de Produtos */}
           <thead>
@@ -205,7 +207,6 @@ export const CompareView: React.FC<CompareViewProps> = ({
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-blue-50/30 dark:bg-blue-950/20">
               <td className="p-4 sm:p-5 font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-blue-600" />
                   <span>Nota Global RevSafe</span>
                 </div>
               </td>
@@ -256,14 +257,14 @@ export const CompareView: React.FC<CompareViewProps> = ({
             <tr className="border-b border-slate-200 dark:border-slate-800">
               <td className="p-4 sm:p-5 font-semibold text-xs text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-sky-600" />
+                  <ShieldCheck className="w-4 h-4 text-sky-700" />
                   <span>Segurança & Certificações</span>
                 </div>
               </td>
               {comparedProducts.map((p) => (
                 <td key={p.id} className="p-4 sm:p-5 border-l border-slate-200 dark:border-slate-800">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-sm text-sky-600 dark:text-sky-400">{p.scores.safety.toFixed(1)}/10</span>
+                    <span className="font-bold text-sm text-sky-700 dark:text-sky-400">{p.scores.safety.toFixed(1)}/10</span>
                     {p.scores.safety === highestSafety && comparedProducts.length > 1 && (
                       <span className="text-[10px] font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950 px-1.5 py-0.5 rounded">Mais Seguro</span>
                     )}
@@ -301,7 +302,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
                   </p>
                   <div className="mt-2 flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
                     <span>Reparabilidade: <b>{p.reparabilityIndex}/10</b></span>
-                    <span>Classe: <b>{p.energyClass || 'A'}</b></span>
+                    <span>Classe: <b>{p.energyClass || 'Sem informação'}</b></span>
                   </div>
                 </td>
               ))}
@@ -372,7 +373,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
                 </td>
                 {comparedProducts.map((p) => (
                   <td key={p.id} className="p-3.5 sm:p-4 text-xs text-slate-800 dark:text-slate-200 border-l border-slate-200 dark:border-slate-800">
-                    {p.specs[key] || <span className="text-slate-600 dark:text-slate-400 italic">Não informado</span>}
+                    {p.specs[key] || <span className="text-slate-600 dark:text-slate-400 italic">Sem informação</span>}
                   </td>
                 ))}
               </tr>

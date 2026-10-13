@@ -1,4 +1,5 @@
-import { PCBuildState, CompatibilityIssue } from '../types';
+﻿import type { PCBuildState, CompatibilityIssue } from '../types';
+import { calculateBuildCost, totalRamModules } from './pcBuild';
 
 export interface SystemPowerReport {
   estimatedDrawWatts: number;
@@ -9,171 +10,59 @@ export interface SystemPowerReport {
 }
 
 export function calculateEstimatedPower(build: PCBuildState): SystemPowerReport {
-  let totalWatts = 0;
-
-  // Base platform draw (chipset, fans, LEDs, storage, audio)
-  totalWatts += 45;
-
-  if (build.cpu) {
-    totalWatts += build.cpu.tdpWatts || 65;
-  }
-  if (build.motherboard) {
-    totalWatts += build.motherboard.tdpWatts || 25;
-  }
-  if (build.ram) {
-    totalWatts += build.ram.tdpWatts || 15;
-  }
-  if (build.gpu) {
-    totalWatts += build.gpu.tdpWatts || 0;
-  }
-  if (build.storage) {
-    totalWatts += build.storage.tdpWatts || 8;
-  }
-
-  // Recommended is typically ~1.35x estimated draw to stay around 50-70% PSU efficiency curve
-  let recommended = Math.ceil((totalWatts * 1.35) / 50) * 50;
-  if (build.gpu && build.gpu.recommendedPsuWattage && build.gpu.recommendedPsuWattage > recommended) {
-    recommended = build.gpu.recommendedPsuWattage;
-  }
-  if (recommended < 450) recommended = 450;
-
-  const currentPsuWatts = build.psu?.wattage || 0;
-  const margin = currentPsuWatts > 0 ? currentPsuWatts - totalWatts : 0;
-
-  let status: SystemPowerReport['status'] = 'no_psu';
-  if (currentPsuWatts > 0) {
-    if (currentPsuWatts < totalWatts) {
-      status = 'critical';
-    } else if (currentPsuWatts < recommended) {
-      status = 'tight';
-    } else {
-      status = 'safe';
-    }
-  }
-
+  // External monitors are priced in the build but are not powered by the PC PSU.
+  const internal = [build.cpu, build.motherboard, ...build.ram, ...build.gpu, ...build.storage];
+  const totalWatts = 45 + internal.reduce((total, c) => total + (c?.tdpWatts || 0), 0);
+  const recommended = Math.max(450, Math.ceil(totalWatts * 1.35 / 50) * 50, ...build.gpu.map(c => c.recommendedPsuWattage || 0));
+  const current = build.psu?.wattage || 0;
   return {
-    estimatedDrawWatts: totalWatts,
-    recommendedPsuWatts: recommended,
-    currentPsuWatts,
-    marginWatts: margin,
-    status,
+    estimatedDrawWatts: totalWatts, recommendedPsuWatts: recommended, currentPsuWatts: current,
+    marginWatts: current ? current - totalWatts : 0,
+    status: !current ? 'no_psu' : current < totalWatts ? 'critical' : current < recommended ? 'tight' : 'safe',
   };
 }
 
 export function checkCompatibility(build: PCBuildState): CompatibilityIssue[] {
   const issues: CompatibilityIssue[] = [];
-
-  // 1. Soquete CPU vs Placa-Mãe
-  if (build.cpu && build.motherboard) {
-    if (build.cpu.socket && build.motherboard.socket && build.cpu.socket !== build.motherboard.socket) {
-      issues.push({
-        type: 'error',
-        title: 'Incompatibilidade Crítica de Soquete',
-        description: `O processador (${build.cpu.name}) requer o soquete ${build.cpu.socket}, mas a placa-mãe (${build.motherboard.name}) possui o soquete ${build.motherboard.socket}. O processador não encaixa fisicamente!`,
-        componentA: build.cpu.name,
-        componentB: build.motherboard.name,
-        recommendation: `Troque a placa-mãe por um modelo com soquete ${build.cpu.socket} ou altere o processador.`,
-      });
+  const add = (type: CompatibilityIssue['type'], title: string, description: string, recommendation?: string) => issues.push({ type, title, description, recommendation });
+  if (build.cpu?.socket && build.motherboard?.socket && build.cpu.socket !== build.motherboard.socket) {
+    add('error', 'Incompatibilidade de soquete', `O processador usa ${build.cpu.socket}, mas a placa-mãe usa ${build.motherboard.socket}.`, 'Selecione processador e placa-mãe com o mesmo soquete.');
+  }
+  for (const ram of [...new Map(build.ram.map(c => [c.id, c])).values()]) {
+    if (build.motherboard?.supportedRamType && ram.ramType !== build.motherboard.supportedRamType) {
+      add('error', 'Incompatibilidade no tipo de memória RAM', `${ram.name} usa ${ram.ramType}; a placa-mãe aceita ${build.motherboard.supportedRamType}.`, 'Troque este kit por um tipo de memória compatível.');
+    } else if (build.cpu?.socket === 'AM5' && ram.ramType === 'DDR4') {
+      add('error', 'Processador AM5 requer DDR5', `${ram.name} não é compatível com o controlador de memória do processador AM5.`);
     }
   }
-
-  // 2. Tipo de Memória RAM vs Placa-Mãe
-  if (build.ram && build.motherboard) {
-    if (build.motherboard.supportedRamType && build.ram.ramType && build.motherboard.supportedRamType !== build.ram.ramType) {
-      issues.push({
-        type: 'error',
-        title: 'Incompatibilidade no Tipo de Memória RAM',
-        description: `A placa-mãe selecionada suporta memórias ${build.motherboard.supportedRamType}, mas o kit de RAM escolhido é ${build.ram.ramType}. O encaixe dos pinos é fisicamente diferente.`,
-        componentA: build.motherboard.name,
-        componentB: build.ram.name,
-        recommendation: `Selecione um kit de memória RAM ${build.motherboard.supportedRamType}.`,
-      });
-    }
+  const modules = totalRamModules(build);
+  if (build.motherboard?.memorySlots && modules > build.motherboard.memorySlots) {
+    add('error', 'Slots de memória insuficientes', `Foram selecionados ${modules} módulos em ${build.ram.length} kit(s), mas a placa-mãe possui ${build.motherboard.memorySlots} slots.`, 'Reduza a quantidade de kits ou escolha uma placa-mãe com mais slots.');
   }
-
-  // 3. Processador AM5 com RAM DDR4
-  if (build.cpu && build.ram) {
-    if (build.cpu.socket === 'AM5' && build.ram.ramType === 'DDR4') {
-      issues.push({
-        type: 'error',
-        title: 'Processador AM5 Requer Memória DDR5',
-        description: `A plataforma AMD AM5 (${build.cpu.name}) opera exclusivamente com memória DDR5. O kit selecionado é DDR4.`,
-        componentA: build.cpu.name,
-        componentB: build.ram.name,
-        recommendation: 'Troque a memória para um kit DDR5 de 5600MHz ou 6000MHz.',
-      });
-    }
+  if (build.ram.length > 1) {
+    add('warning', 'Verifique a combinação de kits de RAM', 'Kits separados, mesmo com o mesmo nome, exigem confirmação de compatibilidade e estabilidade. A contagem considera os módulos de cada kit.', 'Confira a lista de memórias suportadas pela placa-mãe e os limites do processador.');
   }
-
-  // 4. Formato de Gabinete vs Placa-mãe
-  if (build.motherboard && build.case) {
-    if (build.motherboard.formFactor === 'ATX' && build.case.formFactor === 'Micro-ATX') {
-      issues.push({
-        type: 'error',
-        title: 'Gabinete Muito Pequeno para a Placa-Mãe',
-        description: `A placa-mãe é padrão ATX (tamanho grande), mas o gabinete escolhido comporta apenas placas até Micro-ATX. Ela não caberá na furação interna.`,
-        componentA: build.motherboard.name,
-        componentB: build.case.name,
-        recommendation: 'Escolha um gabinete padrão ATX (Mid-Tower) ou troque a placa-mãe por uma Micro-ATX.',
-      });
-    }
+  if (build.motherboard?.storageSlots && build.storage.length > build.motherboard.storageSlots) {
+    add('error', 'Slots M.2 insuficientes', `Foram selecionados ${build.storage.length} SSDs M.2, mas a placa-mãe oferece ${build.motherboard.storageSlots} slots M.2.`, 'Reduza os SSDs ou selecione uma placa com mais conexões.');
   }
-
-  // 5. Potência da Fonte (PSU)
+  if (build.gpu.length > 1) {
+    add('warning', 'Múltiplas placas de vídeo exigem verificação', 'Confirme os slots PCIe, o espaço no gabinete e os conectores da fonte. A montagem não pressupõe aumento automático de desempenho nem suporte a SLI/CrossFire.');
+  }
+  if (build.monitor.length > 1) {
+    add('warning', 'Confira as saídas de vídeo', `Foram selecionados ${build.monitor.length} monitores. Confirme o número e o tipo de conexões disponíveis nas GPUs ou no vídeo integrado.`);
+  }
+  if (build.motherboard?.formFactor === 'ATX' && build.case?.formFactor === 'Micro-ATX') {
+    add('error', 'Gabinete pequeno para a placa-mãe', 'Uma placa ATX não cabe no gabinete Micro-ATX selecionado.');
+  }
   const power = calculateEstimatedPower(build);
-  if (build.psu) {
-    if (power.status === 'critical') {
-      issues.push({
-        type: 'error',
-        title: 'Potência da Fonte Insuficiente',
-        description: `O consumo de pico estimado dos componentes é de ~${power.estimatedDrawWatts}W, superando os ${build.psu.wattage}W nominais da fonte. O computador sofrerá desligamentos forçados sob estresse.`,
-        componentA: build.psu.name,
-        recommendation: `Recomendamos uma fonte de no mínimo ${power.recommendedPsuWatts}W com certificação 80 Plus.`,
-      });
-    } else if (power.status === 'tight') {
-      issues.push({
-        type: 'warning',
-        title: 'Margem Térmica e Elétrica Reduzida na Fonte',
-        description: `A fonte de ${build.psu.wattage}W suporta a carga de ${power.estimatedDrawWatts}W, mas operará perto de 80-90% da capacidade. Para melhor eficiência, silêncio e futuros upgrades, o ideal seria ${power.recommendedPsuWatts}W.`,
-        componentA: build.psu.name,
-        recommendation: `Considere uma fonte de ${power.recommendedPsuWatts}W para garantir estabilidade máxima contra transientes.`,
-      });
-    }
+  if (power.status === 'critical') add('error', 'Potência da fonte insuficiente', `O consumo estimado é ${power.estimatedDrawWatts} W e a fonte oferece ${power.currentPsuWatts} W.`, `Selecione uma fonte de pelo menos ${power.recommendedPsuWatts} W.`);
+  if (power.status === 'tight') add('warning', 'Margem elétrica reduzida', `A fonte suporta a estimativa de ${power.estimatedDrawWatts} W, mas a recomendação com margem é ${power.recommendedPsuWatts} W.`);
+  if (build.cpu && !build.gpu.length && /(?:\b\d+F\b|\b\d+KF\b|Ryzen 5 5600\b)/i.test(build.cpu.name)) {
+    add('warning', 'Processador sem vídeo integrado', 'O processador selecionado precisa de uma placa de vídeo dedicada para fornecer imagem.');
   }
-
-  // 6. Ausência de Vídeo Integrado sem GPU Dedicada
-  if (build.cpu && !build.gpu) {
-    const isIntelF = build.cpu.name.includes('F') || build.cpu.name.includes('KF');
-    const isNoGpu = isIntelF;
-    if (isNoGpu) {
-      issues.push({
-        type: 'warning',
-        title: 'Processador sem Placa de Vídeo Integrada',
-        description: `O processador ${build.cpu.name} não possui chip gráfico embutido. Sem uma placa de vídeo dedicada instalada, o computador não emitirá sinal para o monitor.`,
-        componentA: build.cpu.name,
-        recommendation: 'Adicione uma placa de vídeo dedicada (GPU) ou escolha um processador com vídeo integrado.',
-      });
-    }
+  const cost = calculateBuildCost(build);
+  if (build.targetBudget > 0 && cost > build.targetBudget) {
+    add('info', 'Teto de orçamento excedido', `O total de R$ ${cost.toLocaleString('pt-BR')} supera o orçamento em R$ ${(cost - build.targetBudget).toLocaleString('pt-BR')}.`);
   }
-
-  // 7. Orçamento Estourado
-  const totalCost = (build.cpu?.price || 0) +
-    (build.motherboard?.price || 0) +
-    (build.ram?.price || 0) +
-    (build.gpu?.price || 0) +
-    (build.storage?.price || 0) +
-    (build.psu?.price || 0) +
-    (build.case?.price || 0);
-
-  if (build.targetBudget > 0 && totalCost > build.targetBudget) {
-    const diff = totalCost - build.targetBudget;
-    issues.push({
-      type: 'info',
-      title: 'Teto de Orçamento Excedido',
-      description: `O custo total atual é de R$ ${totalCost.toLocaleString('pt-BR')}, superando o orçamento alvo de R$ ${build.targetBudget.toLocaleString('pt-BR')} em R$ ${diff.toLocaleString('pt-BR')}.`,
-      recommendation: 'Você pode ajustar componentes como gabinete, SSD ou GPU para alinhar com o orçamento planejado.',
-    });
-  }
-
   return issues;
 }

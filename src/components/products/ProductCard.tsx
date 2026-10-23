@@ -76,7 +76,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all z-10 ${
             isFavorite
               ? 'bg-rose-50 text-rose-500 shadow-sm'
-              : 'bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-rose-500 hover:bg-white dark:hover:bg-slate-800'
+              : 'bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-300 hover:bg-white dark:hover:bg-slate-800'
           }`}
           title={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
@@ -163,7 +163,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 isCompared
                   ? 'bg-brand-action text-white shadow-sm'
-                  : 'border border-slate-300 dark:border-slate-700 hover:border-blue-500 text-slate-700 dark:text-slate-300 hover:text-blue-600'
+                  : 'border border-slate-300 dark:border-slate-700 hover:border-blue-500 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-300'
               }`}
               title={isCompared ? 'Remover da comparação' : 'Adicionar ao comparador'}
             >

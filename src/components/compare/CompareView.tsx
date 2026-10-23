@@ -155,7 +155,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
                 >
                   <button
                     onClick={() => onRemoveProduct(p.id)}
-                    className="absolute top-3 right-3 p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
+                    className="absolute top-3 right-3 p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-300 hover:bg-rose-50 transition-colors"
                     title="Remover produto da comparação"
                   >
                     <X className="w-4 h-4" />
@@ -174,7 +174,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
                   </span>
                   <h3
                     onClick={() => onOpenProductDetail(p)}
-                    className="font-bold text-slate-900 dark:text-white text-base hover:text-blue-600 cursor-pointer line-clamp-1 mt-0.5"
+                    className="font-bold text-slate-900 dark:text-white text-base hover:text-blue-600 dark:hover:text-blue-300 cursor-pointer line-clamp-1 mt-0.5"
                     title={p.name}
                   >
                     {p.name}
@@ -234,7 +234,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
             <tr className="border-b border-slate-200 dark:border-slate-800">
               <td className="p-4 sm:p-5 font-semibold text-xs text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-blue-600" />
+                  <Award className="w-4 h-4 text-blue-600 dark:text-blue-300" />
                   <span>Qualidade & Durabilidade</span>
                 </div>
               </td>
@@ -257,7 +257,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
             <tr className="border-b border-slate-200 dark:border-slate-800">
               <td className="p-4 sm:p-5 font-semibold text-xs text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-sky-700" />
+                  <ShieldCheck className="w-4 h-4 text-sky-700 dark:text-sky-300" />
                   <span>Segurança & Certificações</span>
                 </div>
               </td>
@@ -312,7 +312,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
             <tr className="border-b border-slate-200 dark:border-slate-800">
               <td className="p-4 sm:p-5 font-semibold text-xs text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-2">
-                  <Coins className="w-4 h-4 text-indigo-600" />
+                  <Coins className="w-4 h-4 text-indigo-600 dark:text-indigo-300" />
                   <span>Custo-Benefício Real</span>
                 </div>
               </td>
@@ -385,14 +385,14 @@ export const CompareView: React.FC<CompareViewProps> = ({
       {/* Modal para Adicionar Produto */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white dark:bg-slate-950 rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-slate-950 rounded-2xl p-4 sm:p-6 min-w-0 max-w-2xl w-full max-h-[85dvh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <h3 className="font-bold text-base text-slate-900 dark:text-white">
                 Adicionar Produto para Comparar
               </h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="p-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-600"
+                className="p-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -406,7 +406,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
                     onAddProduct(prod);
                     setIsAddModalOpen(false);
                   }}
-                  className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 hover:bg-blue-50/40 dark:hover:bg-blue-950/20 flex items-center justify-between gap-4 cursor-pointer transition-all"
+                  className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 hover:bg-blue-50/40 dark:hover:bg-blue-950/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer transition-all"
                 >
                   <div className="flex items-center gap-3">
                     <img
@@ -415,7 +415,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
                       className="w-12 h-12 rounded-lg object-cover"
                     />
                     <div>
-                      <div className="text-[10px] font-bold text-blue-600 uppercase">
+                      <div className="text-[10px] font-bold text-blue-600 dark:text-blue-300 uppercase">
                         {prod.brand} • {prod.categoryLabel}
                       </div>
                       <div className="font-bold text-sm text-slate-900 dark:text-white">
@@ -431,7 +431,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
                     <div className="font-extrabold text-sm text-slate-900 dark:text-white">
                       R$ {prod.price.toLocaleString('pt-BR')}
                     </div>
-                    <span className="text-xs font-semibold text-blue-600">
+                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-300">
                       + Adicionar
                     </span>
                   </div>

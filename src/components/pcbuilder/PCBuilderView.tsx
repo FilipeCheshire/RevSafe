@@ -253,8 +253,8 @@ export const PCBuilderView: React.FC = () => {
         </div>
 
         {/* Barra de Progresso do Orçamento */}
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-850">
-          <div className="flex items-center justify-between text-xs mb-1.5 font-medium">
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs mb-1.5 font-medium">
             <span className="text-slate-600 dark:text-slate-400">
               Total Atual: <b data-testid="pc-total-price" className="text-slate-900 dark:text-white text-sm">R$ {totalCost.toLocaleString('pt-BR')}</b>
               {lowestPossibleTotal < totalCost && (
@@ -391,7 +391,7 @@ export const PCBuilderView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleRemoveSlot(slot.type, index)}
-                          className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-rose-500 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-300 rounded-lg transition-colors"
                           title="Remover"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -411,7 +411,7 @@ export const PCBuilderView: React.FC = () => {
 
                 {/* Subtabela de Cotações de Preço em Lojas (RF-010) */}
                 {comp && isQuotesOpen && comp.priceQuotes && (
-                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-850 animate-in fade-in text-xs">
+                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 animate-in fade-in text-xs">
                     <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1">
                       <ShoppingCart className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       <span>Comparação de Preços entre Lojas (RF-010)</span>
@@ -510,7 +510,7 @@ export const PCBuilderView: React.FC = () => {
 
             {/* Painel de Cálculo Elétrico da Fonte (PSU) */}
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-1.5">
                   <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   <span>Consumo Estimado (TDP)</span>
@@ -518,14 +518,14 @@ export const PCBuilderView: React.FC = () => {
                 <span data-testid="pc-power-draw">~{powerReport.estimatedDrawWatts} Watts</span>
               </div>
 
-              <div className="text-[11px] text-slate-600 dark:text-slate-400 flex justify-between">
+              <div className="text-[11px] text-slate-600 dark:text-slate-400 flex flex-wrap justify-between gap-x-3 gap-y-1">
                 <span>Fonte Recomendada (+35% folga):</span>
                 <span className="font-semibold text-slate-700 dark:text-slate-300">
                   {powerReport.recommendedPsuWatts}W ou mais
                 </span>
               </div>
 
-              <div className="text-[11px] text-slate-600 dark:text-slate-400 flex justify-between">
+              <div className="text-[11px] text-slate-600 dark:text-slate-400 flex flex-wrap justify-between gap-x-3 gap-y-1">
                 <span>Fonte Selecionada:</span>
                 <span className={`font-bold ${
                   powerReport.status === 'safe'
@@ -561,7 +561,7 @@ export const PCBuilderView: React.FC = () => {
       {/* Modal de Seleção de Peças */}
       {activeSlot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div role="dialog" aria-modal="true" aria-label="Selecionar componente" className="bg-white dark:bg-slate-950 rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800">
+          <div role="dialog" aria-modal="true" aria-label="Selecionar componente" className="bg-white dark:bg-slate-950 rounded-2xl p-4 sm:p-6 min-w-0 max-w-2xl w-full max-h-[85dvh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <h3 className="font-bold text-base text-slate-900 dark:text-white capitalize">
                 Selecionar {slotsConfig.find((s) => s.type === activeSlot)?.label}
@@ -569,7 +569,7 @@ export const PCBuilderView: React.FC = () => {
               <button
                 aria-label="Fechar seleção"
                 onClick={() => setActiveSlot(null)}
-                className="p-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-600"
+                className="p-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -624,7 +624,7 @@ export const PCBuilderView: React.FC = () => {
                             {comp.brand}
                           </span>
                           {isIncompatible && (
-                            <span className="text-[10px] font-bold text-rose-600 bg-rose-100 dark:bg-rose-950 px-1.5 py-0.5 rounded">
+                            <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950 px-1.5 py-0.5 rounded">
                               Incompatível
                             </span>
                           )}
@@ -634,7 +634,7 @@ export const PCBuilderView: React.FC = () => {
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400">
                           {isIncompatible ? (
-                            <span className="text-rose-600 font-medium">{reason}</span>
+                            <span className="text-rose-700 dark:text-rose-300 font-medium">{reason}</span>
                           ) : (
                             <span>Nota RevSafe: {comp.scores.overall.toFixed(1)}/10</span>
                           )}

@@ -20,7 +20,7 @@ export const CompareFloatingBar: React.FC<CompareFloatingBarProps> = ({
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-4xl animate-in fade-in slide-in-from-bottom-5 duration-300">
       <div className="bg-slate-950/95 dark:bg-black/95 backdrop-blur-md text-white rounded-2xl shadow-2xl border border-slate-800 p-3 sm:p-4 flex flex-col lg:flex-row items-center justify-between gap-3">
-        <div className="hidden lg:flex items-center gap-3 w-full lg:w-auto min-w-0 overflow-x-auto pb-1 sm:pb-0">
+        <div className="hidden lg:flex flex-1 items-center gap-3 w-full lg:w-auto min-w-0 overflow-x-auto pb-1 sm:pb-0">
           <div className="flex items-center gap-2 pr-2 border-r border-slate-800 shrink-0">
             <div className="p-2 rounded-xl bg-brand/20 text-blue-400">
               <Scale className="w-5 h-5" />
@@ -60,7 +60,7 @@ export const CompareFloatingBar: React.FC<CompareFloatingBarProps> = ({
             {Array.from({ length: 4 - products.length }).map((_, idx) => (
               <div
                 key={`empty-${idx}`}
-                className="w-8 h-8 rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-xs text-slate-600 shrink-0"
+                className="w-8 h-8 rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-xs text-slate-400 shrink-0"
                 title="Espaço disponível"
               >
                 +

@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {user ? (
               <div className="flex items-center gap-1.5 pl-1">
                 <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
-                  <User className="w-3.5 h-3.5 text-blue-600" />
+                  <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
                   <span className="font-medium text-slate-800 dark:text-slate-200 hidden sm:inline max-w-[120px] truncate">
                     {user.name}
                   </span>
@@ -115,7 +115,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 <button
                   onClick={onLogout}
-                  className="p-2 text-slate-600 dark:text-slate-400 hover:text-rose-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                  className="p-2 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
                   title="Sair"
                 >
                   <LogOut className="w-4 h-4" />

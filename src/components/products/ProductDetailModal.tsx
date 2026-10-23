@@ -55,7 +55,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div role="dialog" aria-modal="true" aria-label={product.name} className="relative w-full max-w-4xl bg-white dark:bg-slate-950 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 my-auto max-h-[92vh] flex flex-col overflow-hidden">
+      <div role="dialog" aria-modal="true" aria-label={product.name} className="relative w-full max-w-4xl bg-white dark:bg-slate-950 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 my-auto max-h-[92dvh] flex flex-col overflow-hidden">
         
         {/* Header Modal Bar */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
@@ -76,7 +76,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               className={`p-2 rounded-lg transition-colors ${
                 isFavorite
                   ? 'bg-rose-50 text-rose-500'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
               title="Favoritar"
             >
@@ -165,7 +165,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <SafetyAlertBanner alert={product.safetyAlert} />
 
               {/* Quick Eco & Repair Metas */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+              <div className="grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
                     <Wrench className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
@@ -186,9 +186,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 col-span-2 sm:col-span-1">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 min-[400px]:col-span-2 sm:col-span-1">
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
                     <span>Certificações</span>
                   </div>
                   <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-1 truncate" title={product.certifications.join(', ')}>
@@ -201,7 +201,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <div className="p-3.5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
                   <div className="text-xs font-bold text-blue-800 dark:text-blue-300 mb-2 uppercase tracking-wider flex items-center gap-1.5">
-                    <Check className="w-4 h-4 text-blue-600" />
+                    <Check className="w-4 h-4 text-blue-600 dark:text-blue-300" />
                     <span>Pontos Fortes</span>
                   </div>
                   <ul className="text-xs text-slate-700 dark:text-slate-300 space-y-1.5 list-disc pl-4">
@@ -234,7 +234,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 className={`pb-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                   activeTab === 'pilares'
                     ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-750 dark:hover:text-slate-300'
+                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
               >
                 <Award className="w-4 h-4" />
@@ -245,7 +245,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 className={`pb-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                   activeTab === 'specs'
                     ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-750 dark:hover:text-slate-300'
+                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
               >
                 <FileText className="w-4 h-4" />
@@ -256,7 +256,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 className={`pb-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                   activeTab === 'precos'
                     ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-750 dark:hover:text-slate-300'
+                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
               >
                 <ShoppingCart className="w-4 h-4" />
@@ -267,7 +267,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 className={`pb-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
                   activeTab === 'fontes'
                     ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-750 dark:hover:text-slate-300'
+                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
               >
                 <Building2 className="w-4 h-4" />
@@ -282,12 +282,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Qualidade */}
                 <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 font-bold text-sm text-blue-950 dark:text-blue-300">
-                      <Award className="w-4 h-4 text-blue-600" />
+                      <Award className="w-4 h-4 text-blue-600 dark:text-blue-300" />
                       <span>1. Qualidade & Durabilidade</span>
                     </div>
-                    <span className="text-sm font-extrabold text-blue-600">{product.scores.quality.toFixed(1)}/10</span>
+                    <span className="text-sm font-extrabold text-blue-600 dark:text-blue-300">{product.scores.quality.toFixed(1)}/10</span>
                   </div>
                   <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
                     {product.pillarNotes.quality}
@@ -296,12 +296,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                 {/* Segurança */}
                 <div className="p-4 rounded-xl bg-sky-50/50 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900/50">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 font-bold text-sm text-sky-950 dark:text-sky-300">
-                      <ShieldCheck className="w-4 h-4 text-sky-600" />
+                      <ShieldCheck className="w-4 h-4 text-sky-700 dark:text-sky-300" />
                       <span>2. Segurança & Certificações</span>
                     </div>
-                    <span className="text-sm font-extrabold text-sky-600">{product.scores.safety.toFixed(1)}/10</span>
+                    <span className="text-sm font-extrabold text-sky-700 dark:text-sky-300">{product.scores.safety.toFixed(1)}/10</span>
                   </div>
                   <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
                     {product.pillarNotes.safety}
@@ -310,7 +310,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                 {/* Sustentabilidade */}
                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 font-bold text-sm text-slate-900 dark:text-slate-200">
                       <Leaf className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                       <span>3. Sustentabilidade & Eficiência</span>
@@ -324,12 +324,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                 {/* Custo-Benefício */}
                 <div className="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 font-bold text-sm text-indigo-950 dark:text-indigo-300">
-                      <Coins className="w-4 h-4 text-indigo-600" />
+                      <Coins className="w-4 h-4 text-indigo-600 dark:text-indigo-300" />
                       <span>4. Custo-Benefício & Valor Real</span>
                     </div>
-                    <span className="text-sm font-extrabold text-indigo-600">{product.scores.costBenefit.toFixed(1)}/10</span>
+                    <span className="text-sm font-extrabold text-indigo-600 dark:text-indigo-300">{product.scores.costBenefit.toFixed(1)}/10</span>
                   </div>
                   <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
                     {product.pillarNotes.costBenefit}

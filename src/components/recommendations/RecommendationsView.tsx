@@ -74,10 +74,10 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Formulário de Preferências (Coluna Esquerda) */}
-        <div data-testid="recommendation-filters" className="min-w-0 lg:col-span-5 bg-white dark:bg-slate-950 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+        <div data-testid="recommendation-filters" className="min-w-0 lg:col-span-5 bg-white dark:bg-slate-950 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2 font-bold text-sm text-slate-900 dark:text-white">
-              <Sliders className="w-4 h-4 text-blue-600" />
+              <Sliders className="w-4 h-4 text-blue-600 dark:text-blue-300" />
               <span>Critérios e Preferências</span>
             </div>
             <button
@@ -123,7 +123,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
 
           {/* 2. Orçamento Máximo */}
           <div>
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 2. Orçamento Máximo
               </label>
@@ -362,11 +362,11 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                       </span>
                       <h3
                         onClick={() => onOpenProductDetail(prod)}
-                        className="font-bold text-base sm:text-lg text-slate-900 dark:text-white hover:text-blue-600 cursor-pointer line-clamp-1"
+                        className="font-bold text-base sm:text-lg text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-300 cursor-pointer line-clamp-1"
                       >
                         {prod.name}
                       </h3>
-                      <div className="flex items-baseline gap-2 mt-1">
+                      <div className="flex flex-wrap items-baseline gap-2 mt-1">
                         <span className="text-xl font-extrabold text-slate-900 dark:text-white">
                           R$ {prod.price.toLocaleString('pt-BR')}
                         </span>
@@ -400,7 +400,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
                   {/* Justificativas do Algoritmo */}
                   <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-2">
                     <div className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px] flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
                       <span>Critérios considerados na indicação:</span>
                     </div>
                     <ul className="space-y-1 text-slate-600 dark:text-slate-400 pl-4 list-disc">

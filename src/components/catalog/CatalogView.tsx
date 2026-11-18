@@ -128,7 +128,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           Catálogo de Produtos
         </h1>
         <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1">
-          Pesquise por nome, marca ou características técnicas com filtros combináveis (RF-001, RF-004).
+          Pesquise por nome, marca ou características técnicas com filtros combináveis.
         </p>
       </div>
 

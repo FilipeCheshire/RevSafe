@@ -23,7 +23,7 @@ const BASE_MOCK_PRODUCTS: Product[] = [
     },
     pillarNotes: {
       quality: 'Construção impecável em titânio e Gorilla Glass Armor, com resistência a arranhões até 4x superior a antecessores em testes de laboratório.',
-      safety: 'Certificado Anatel pleno, criptografia Knox de hardware e conformidade estrita com normas de emissão de RF (SAR dentro dos limites seguros).',
+      safety: 'Certificado Anatel pleno, criptografia Knox de hardware e conformidade estrita com normas de emissão de radiofrequência (SAR dentro dos limites seguros).',
       sustainability: 'Uso de cobalto reciclado na bateria e aço reciclado nos alto-falantes. Compromisso de 7 anos de suporte previne obsolescência precoce.',
       costBenefit: 'Valor absoluto elevado, porém com ciclo de vida projetado de 5+ anos, tornando o custo anual amortizado competitivo na categoria ultra-premium.',
     },

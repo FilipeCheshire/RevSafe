@@ -68,7 +68,7 @@ export interface Product {
   cons: string[];
   safetyAlert: SafetyAlert;
   sources: ProductSource[];
-  priceQuotes?: PriceQuote[]; // Atende a RF-010 e DER Tabela Preco
+  priceQuotes?: PriceQuote[];
   certifications: string[]; // ex: ['Inmetro A+', 'Anatel Aprovado', 'Energy Star', 'CE']
   reparabilityIndex: number; // 1 a 10
   energyClass?: 'A+++' | 'A++' | 'A+' | 'A' | 'B' | 'C' | 'N/A';
@@ -109,7 +109,7 @@ export interface PCComponent {
   };
   pros: string[];
   cons: string[];
-  priceQuotes?: PriceQuote[]; // Atende a RF-010 (Comparação de preços de componentes)
+  priceQuotes?: PriceQuote[];
   isSimulated: boolean;
 }
 

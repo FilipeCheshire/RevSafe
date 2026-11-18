@@ -7,6 +7,7 @@ import {
   Coins,
   ArrowRight,
   Scale,
+  Sparkles,
   Cpu,
   AlertTriangle,
   Smartphone,
@@ -226,7 +227,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">
-                  Segurança do Consumidor (RF-006)
+                  Segurança do Consumidor
                 </span>
                 <h3 className="text-base font-bold text-amber-950 dark:text-amber-200">
                   Alertas Técnicos de Sobreaquecimento e Recall
@@ -301,6 +302,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
             className="p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 transition-all cursor-pointer group shadow-sm flex flex-col justify-between"
           >
             <div>
+              <div className="p-2.5 rounded-xl bg-brand-action text-white w-fit mb-3">
+                <Sparkles className="w-5 h-5" />
+              </div>
               <h3 className="font-bold text-base text-slate-900 dark:text-white">
                 Recomendações
               </h3>

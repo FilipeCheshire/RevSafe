@@ -176,7 +176,7 @@ export const PCBuilderView: React.FC = () => {
           Monte seu PC
         </h1>
         <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-          Selecione os componentes de hardware com validação em tempo real de soquete, tipo de memória RAM, consumo em Watts e comparação de preços entre lojas (RF-008, RF-009, RF-010).
+          Selecione os componentes de hardware com validação em tempo real de soquete, tipo de memória RAM, consumo em Watts e comparação de preços entre lojas.
         </p>
       </div>
 
@@ -409,12 +409,12 @@ export const PCBuilderView: React.FC = () => {
                   {comp.specificationSource && <a href={comp.specificationSource.url} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-xs text-blue-700 dark:text-blue-300 underline">Ficha do fabricante</a>}
                 </details>}
 
-                {/* Subtabela de Cotações de Preço em Lojas (RF-010) */}
+                {/* Subtabela de Cotações de Preço em Lojas */}
                 {comp && isQuotesOpen && comp.priceQuotes && (
                   <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 animate-in fade-in text-xs">
                     <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1">
                       <ShoppingCart className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                      <span>Comparação de Preços entre Lojas (RF-010)</span>
+                      <span>Comparação de Preços entre Lojas</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       {comp.priceQuotes.map((q, qIdx) => (

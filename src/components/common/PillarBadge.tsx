@@ -49,10 +49,10 @@ export const PillarBadge: React.FC<PillarBadgeProps> = ({
 
   if (size === 'sm') {
     return (
-      <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-xs font-medium ${config.bg} ${config.color}`} title={`${config.label}: ${score.toFixed(1)}/10`}>
+      <div className={`flex min-w-0 items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium ${config.bg} ${config.color}`} title={`${config.label}: ${score.toFixed(1)}/10`}>
         <Icon className="w-3.5 h-3.5 shrink-0" />
-        {showLabel && <span className="text-slate-700 dark:text-slate-300">{config.label}:</span>}
-        <span className="font-bold">{score.toFixed(1)}</span>
+        {showLabel && <span className="min-w-0 text-slate-700 dark:text-slate-300 [overflow-wrap:normal]">{config.label}</span>}
+        <span className="ml-auto shrink-0 whitespace-nowrap font-bold tabular-nums">{score.toFixed(1)}</span>
       </div>
     );
   }

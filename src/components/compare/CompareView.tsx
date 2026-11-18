@@ -102,7 +102,7 @@ export const CompareView: React.FC<CompareViewProps> = ({
             Comparador Lado a Lado
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1">
-            Comparação detalhada de até 4 produtos em atributos equivalentes (RF-003 / RNE-003).
+            Comparação detalhada de até 4 produtos em atributos equivalentes.
           </p>
         </div>
 

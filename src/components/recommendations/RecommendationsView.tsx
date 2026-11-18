@@ -68,7 +68,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
           Recomendações Personalizadas
         </h1>
         <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-          Informe seu orçamento, finalidade de uso e preferências para receber sugestões fundamentadas com critérios claros (RF-007 / RNE-005).
+          Informe seu orçamento, finalidade de uso e preferências para receber sugestões fundamentadas com critérios claros.
         </p>
       </div>
 

@@ -46,7 +46,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   if (!isOpen || !product) return null;
 
-  // Cotações de preço padrão simuladas para atender a RF-010
+  // Cotações de preço padrão simuladas
   const priceQuotes = product.priceQuotes || [
     { storeName: 'KaBuM!', price: product.price, available: true, isLowestPrice: true },
     { storeName: 'Amazon Brasil', price: Math.round(product.price * 1.04), available: true },
@@ -260,7 +260,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 }`}
               >
                 <ShoppingCart className="w-4 h-4" />
-                <span>Cotações e Lojas (RF-010)</span>
+                <span>Cotações e Lojas</span>
               </button>
               <button
                 onClick={() => setActiveTab('fontes')}
@@ -366,11 +366,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             </div>
           )}
 
-          {/* Tab 3: Cotações de Preço (RF-010) */}
+          {/* Tab 3: Cotações de Preço */}
           {activeTab === 'precos' && (
             <div className="space-y-3 animate-in fade-in duration-200">
               <div className="text-xs text-slate-600 dark:text-slate-400 mb-2">
-                Comparação de cotações em diferentes varejistas de acordo com o requisito <b>RF-010</b>:
+                Comparação de cotações em diferentes varejistas:
               </div>
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto">
                 <table className="w-full text-xs text-left">

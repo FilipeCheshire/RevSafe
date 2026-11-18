@@ -43,14 +43,19 @@ export const ChatbotView: React.FC<ChatbotViewProps> = ({
 
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollToBottom();
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    // Scroll only the conversation, never its ancestors or the page.
+    container.scrollTo({
+      top: messages.length === 1 ? 0 : container.scrollHeight,
+      behavior: messages.length === 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    });
   }, [messages, isLoading]);
 
   useEffect(() => {
@@ -154,7 +159,7 @@ export const ChatbotView: React.FC<ChatbotViewProps> = ({
       </div>
 
       {/* Janela de Mensagens */}
-      <div className="flex-1 min-h-0 overflow-y-auto space-y-4 py-4 pr-1">
+      <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto space-y-4 py-4 pr-1">
         {messages.map((msg) => {
           const isUser = msg.sender === 'user';
 
@@ -274,7 +279,6 @@ export const ChatbotView: React.FC<ChatbotViewProps> = ({
           </div>
         )}
 
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Caixa de Entrada de Texto */}

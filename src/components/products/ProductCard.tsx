@@ -116,7 +116,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </p>
 
           {/* 4 Pillars Mini Grid */}
-          <div className="grid grid-cols-2 gap-1.5 mb-4">
+          <div className="grid grid-cols-1 gap-2 mb-4">
             <PillarBadge pillar="quality" score={product.scores.quality} size="sm" />
             <PillarBadge pillar="safety" score={product.scores.safety} size="sm" />
             <PillarBadge pillar="sustainability" score={product.scores.sustainability} size="sm" />
@@ -126,15 +126,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Pricing and Action Footer */}
         <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-          <div className="flex items-baseline justify-between mb-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
             <div>
               <div className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Preço médio apurado</div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-extrabold text-slate-900 dark:text-white">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="text-lg font-extrabold whitespace-nowrap text-slate-900 dark:text-white">
                   R$ {product.price.toLocaleString('pt-BR')}
                 </span>
                 {product.originalPrice && product.originalPrice > product.price && (
-                  <span className="text-xs text-slate-600 dark:text-slate-400 line-through">
+                  <span className="text-xs whitespace-nowrap text-slate-600 dark:text-slate-400 line-through">
                     R$ {product.originalPrice.toLocaleString('pt-BR')}
                   </span>
                 )}

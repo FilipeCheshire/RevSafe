@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Search,
   ShieldCheck,
@@ -6,10 +6,10 @@ import {
   Leaf,
   Coins,
   ArrowRight,
+  ArrowUp,
   Scale,
   Sparkles,
   Cpu,
-  AlertTriangle,
   Smartphone,
   Laptop,
   UtensilsCrossed,
@@ -20,6 +20,8 @@ import { Category, Product } from '../../types';
 import { MOCK_PRODUCTS } from '../../data/mockProducts';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { ProductCard } from '../products/ProductCard';
+import { ScrollExperience } from './ScrollExperience';
+import { GridBackground } from '../common/GridBackground';
 
 interface HomeViewProps {
   onSearch: (query: string) => void;
@@ -43,35 +45,35 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onNavigateTab,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const homeRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    homeRef.current?.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   const featuredProducts = MOCK_PRODUCTS.slice(0, 4);
-  const alertProduct = MOCK_PRODUCTS.find((p) => p.safetyAlert.hasAlert);
+
 
   const categories = [
     { id: 'smartphones', label: 'Smartphones', icon: Smartphone, count: '4 produtos' },
     { id: 'notebooks', label: 'Notebooks', icon: Laptop, count: '3 produtos' },
-    { id: 'eletrodomesticos', label: 'Eletrodomésticos', icon: UtensilsCrossed, count: '3 produtos' },
-    { id: 'audio', label: 'Áudio & Fones', icon: Headphones, count: '1 produto' },
+    { id: 'eletrodomesticos', label: 'Eletrodomésticos', icon: UtensilsCrossed, count: '4 produtos' },
+    { id: 'audio', label: 'Áudio & Fones', icon: Headphones, count: '2 produtos' },
     { id: 'monitores', label: 'Monitores', icon: Tv, count: '2 produtos' },
   ];
 
   return (
-    <div className="space-y-12 sm:space-y-16 pb-12">
-      {/* HERO SECTION */}
-      <section className="home-hero relative overflow-hidden bg-gradient-to-b from-blue-50/60 via-white to-slate-50 dark:from-slate-900/60 dark:via-slate-950 dark:to-black pt-12 sm:pt-16 pb-12 sm:pb-16 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950 px-3 py-1.5 text-xs font-semibold text-blue-800 dark:text-blue-200 mb-6"><ShieldCheck className="w-3.5 h-3.5" /> Mais clareza para sua próxima escolha</div>
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white tracking-tight max-w-4xl mx-auto leading-tight">
-            Escolha melhor.<br /><span className="text-blue-600 dark:text-blue-400">Compre com confiança.</span>
-          </h1>
-
-          <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Avaliações multicritério baseadas em qualidade, segurança, sustentabilidade e custo-benefício para apoiar decisões de compra conscientes.
-          </p>
-
-          {/* Busca Rápida */}
-          <div className="mt-8 max-w-2xl mx-auto">
+    <div ref={homeRef} className="home-sections">
+      <ScrollExperience>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -84,6 +86,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div className="min-w-0 w-full flex-1 flex items-center rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/25 transition-colors">
                 <Search aria-hidden="true" className="w-5 h-5 text-slate-600 dark:text-slate-400 ml-3 shrink-0" />
                 <input
+                  id="home-product-search"
+                  name="q"
                   aria-label="Pesquisar produtos"
                   type="search"
                   enterKeyHint="search"
@@ -97,54 +101,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
               <AnimatedButton type="submit" className="w-full sm:w-auto min-h-12">Buscar</AnimatedButton>
             </form>
-          </div>
-
-          {/* 4 Pilares de Avaliação */}
-          <div className="grid grid-cols-1 min-[380px]:grid-cols-2 md:grid-cols-4 gap-4 mt-12 text-left">
-            <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 w-fit mb-2">
-                <Award className="w-4 h-4" />
-              </div>
-              <div className="font-bold text-sm text-slate-900 dark:text-white">Qualidade</div>
-              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-snug">Durabilidade, materiais e resistência.</div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 w-fit mb-2">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div className="font-bold text-sm text-slate-900 dark:text-white">Segurança</div>
-              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-snug">Certificações oficiais e monitoramento de falhas.</div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 w-fit mb-2">
-                <Leaf className="w-4 h-4" />
-              </div>
-              <div className="font-bold text-sm text-slate-900 dark:text-white">Sustentabilidade</div>
-              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-snug">Consumo de energia e índice de reparabilidade.</div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 w-fit mb-2">
-                <Coins className="w-4 h-4" />
-              </div>
-              <div className="font-bold text-sm text-slate-900 dark:text-white">Custo-Benefício</div>
-              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-snug">Preço amortizado pelo ciclo de vida útil.</div>
-            </div>
-          </div>
-
-        </div>
-      </section>
+      </ScrollExperience>
 
       {/* CATEGORIAS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <section id="home-categories" className="home-section grid-surface"><GridBackground surface /><div className="grid-surface-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-heading">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            <h2 data-reveal className="section-title text-slate-900 dark:text-white">
               Categorias
             </h2>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
               Consulte avaliações e especificações técnicas por segmento
             </p>
           </div>
@@ -182,15 +148,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
             );
           })}
         </div>
-      </section>
+      </div></section>
 
       {/* PRODUTOS EM DESTAQUE */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <section className="home-section grid-surface"><GridBackground surface /><div className="grid-surface-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-heading">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            <h2 data-reveal className="section-title text-slate-900 dark:text-white">
               Produtos em Destaque
             </h2>
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">Conheça os destaques da nossa avaliação multicritério.</p>
           </div>
 
           <button
@@ -215,64 +182,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
             />
           ))}
         </div>
-      </section>
-
-      {/* BOLETIM DE SEGURANÇA E ALERTAS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-amber-50/50 dark:bg-amber-950/20 rounded-2xl p-6 border border-amber-200 dark:border-amber-900">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-amber-200 dark:border-amber-900">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-amber-700 text-white">
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">
-                  Segurança do Consumidor
-                </span>
-                <h3 className="text-base font-bold text-amber-950 dark:text-amber-200">
-                  Alertas Técnicos de Sobreaquecimento e Recall
-                </h3>
-              </div>
-            </div>
-          </div>
-
-          {alertProduct && (
-            <div className="mt-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-amber-200 dark:border-amber-900">
-              <div className="flex items-center gap-4">
-                <img
-                  src={alertProduct.image}
-                  alt={alertProduct.name}
-                  className="w-12 h-12 rounded-lg object-cover bg-slate-100"
-                />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300">
-                      Alerta Ativo
-                    </span>
-                    <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold">{alertProduct.brand}</span>
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white mt-0.5">
-                    {alertProduct.name}
-                  </h4>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 max-w-xl">
-                    {alertProduct.safetyAlert.description}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => onOpenProductDetail(alertProduct)}
-                className="py-2 px-4 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
-              >
-                Ver Relatório
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
+      </div></section>
 
       {/* MÓDULOS DE ACESSO RÁPIDO */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="home-section grid-surface"><GridBackground surface /><div className="grid-surface-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-heading">
+          <div><h2 data-reveal className="section-title text-slate-900 dark:text-white">Da dúvida à escolha</h2><p className="mt-3 text-sm text-slate-600 dark:text-slate-400">Compare, descubra e monte. Encontre o caminho para sua próxima compra.</p></div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card 1: Comparador */}
           <div
@@ -290,7 +206,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 Compare de 2 a 4 produtos em atributos equivalentes com diferenças e prós/contras destacados.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-900 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+            <div className="mt-4 p-3 rounded-lg bg-blue-50/70 dark:bg-slate-900 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
               <span>Acessar</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </div>
@@ -312,7 +228,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 Informe orçamento, objetivo de uso e preferências para receber opções recomendadas com justificativas.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-900 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+            <div className="mt-4 p-3 rounded-lg bg-blue-50/70 dark:bg-slate-900 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
               <span>Acessar</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </div>
@@ -334,13 +250,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 Validador de compatibilidade de soquete, memória e potência elétrica para montagem de computadores.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-900 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+            <div className="mt-4 p-3 rounded-lg bg-blue-50/70 dark:bg-slate-900 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
               <span>Acessar</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </div>
           </div>
         </div>
-      </section>
+      </div></section>
+      <div className="home-return"><button onClick={() => window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })}>Voltar ao topo e rever a experiência <ArrowUp className="w-4 h-4" /></button></div>
     </div>
   );
 };

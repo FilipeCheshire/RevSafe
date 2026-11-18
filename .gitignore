@@ -13,6 +13,8 @@ out/
 *.tsbuildinfo
 .npm-cache/
 artifacts/
+.notebook-deps/
+.playwright-browsers/
 
 # Local credentials and editor state
 .aws/

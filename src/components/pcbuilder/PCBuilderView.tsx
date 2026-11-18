@@ -253,7 +253,7 @@ export const PCBuilderView: React.FC = () => {
         </div>
 
         {/* Barra de Progresso do Orçamento */}
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+        <div className="pt-2 section-band">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs mb-1.5 font-medium">
             <span className="text-slate-600 dark:text-slate-400">
               Total Atual: <b data-testid="pc-total-price" className="text-slate-900 dark:text-white text-sm">R$ {totalCost.toLocaleString('pt-BR')}</b>
@@ -307,7 +307,7 @@ export const PCBuilderView: React.FC = () => {
                 data-testid={`pc-item-${slot.type}`}
                 className="bg-white dark:bg-slate-950 rounded-xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700"
               >
-                {index === 0 && allowsMultiple(slot.type) && selected.length > 0 && <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+                {index === 0 && allowsMultiple(slot.type) && selected.length > 0 && <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 section-band">
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{slot.label}: {selected.length} {slot.type === 'ram' ? `kit(s), ${totalRamModules(build)} módulos` : 'item(ns)'}</span>
                   <button onClick={() => openPicker(slot.type)} aria-label={`Adicionar item em ${slot.label}`} className="inline-flex items-center gap-1 rounded-lg bg-brand-action px-3 py-2 text-xs font-semibold text-white"><Plus className="w-3.5 h-3.5" /> Adicionar</button>
                 </div>}
@@ -354,7 +354,7 @@ export const PCBuilderView: React.FC = () => {
                   </div>
 
                   {/* Preço e Botões */}
-                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end shrink-0 pt-2 sm:pt-0 rounded-xl bg-slate-50 dark:bg-slate-900 px-2">
                     {comp && (
                       <div className="text-right">
                         <div className="font-extrabold text-sm text-slate-900 dark:text-white">
@@ -401,7 +401,7 @@ export const PCBuilderView: React.FC = () => {
                   </div>
                 </div>
 
-                {comp && <details className="mt-3 border-t border-slate-200 dark:border-slate-800 pt-3">
+                {comp && <details className="mt-3 section-band pt-3">
                   <summary className="cursor-pointer text-xs font-semibold text-blue-700 dark:text-blue-300">Especificações do componente</summary>
                   <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 text-xs">
                     {Object.entries(comp.specs).map(([key, value]) => <div key={key} className="min-w-0"><dt className="font-semibold text-slate-700 dark:text-slate-300">{key}</dt><dd className="mt-1 text-slate-600 dark:text-slate-400 break-words">{value}</dd></div>)}
@@ -411,7 +411,7 @@ export const PCBuilderView: React.FC = () => {
 
                 {/* Subtabela de Cotações de Preço em Lojas */}
                 {comp && isQuotesOpen && comp.priceQuotes && (
-                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 animate-in fade-in text-xs">
+                  <div className="mt-3 pt-3 section-band animate-in fade-in text-xs">
                     <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1">
                       <ShoppingCart className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       <span>Comparação de Preços entre Lojas</span>
@@ -448,7 +448,7 @@ export const PCBuilderView: React.FC = () => {
         <div className="min-w-0 lg:col-span-4 space-y-6">
           {/* Card de Status de Compatibilidade */}
           <div className="bg-white dark:bg-slate-950 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-            <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex flex-wrap items-start justify-between gap-3 pb-3 section-band">
               <h2 className="min-w-0 font-bold text-sm text-slate-900 dark:text-white">
                 Verificação de compatibilidade
               </h2>
@@ -509,7 +509,7 @@ export const PCBuilderView: React.FC = () => {
             )}
 
             {/* Painel de Cálculo Elétrico da Fonte (PSU) */}
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <div className="pt-3 section-band space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-1.5">
                   <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -562,7 +562,7 @@ export const PCBuilderView: React.FC = () => {
       {activeSlot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
           <div role="dialog" aria-modal="true" aria-label="Selecionar componente" className="bg-white dark:bg-slate-950 rounded-2xl p-4 sm:p-6 min-w-0 max-w-2xl w-full max-h-[85dvh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between pb-4 section-band">
               <h3 className="font-bold text-base text-slate-900 dark:text-white capitalize">
                 Selecionar {slotsConfig.find((s) => s.type === activeSlot)?.label}
               </h3>

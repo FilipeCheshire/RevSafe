@@ -18,7 +18,7 @@
         "headers": [
           {
             "key": "Content-Security-Policy",
-            "value": "default-src 'self'; script-src 'self' 'sha256-OBTN3RiyCV4Bq7dFqZ5a2pAXjnCcCYeTJMO2I/LYKeo=' 'sha256-SJ/z3SZKG77pxbXdoTAn8AWRx0KAz+ygGCpI7yg5+cY=' 'sha256-g8403vIzIMxDlojnDt8gKo4HNIZn4SwwL1g2HGJ+6JU=' 'sha256-k+a8cMvD4Dot3YzYdfhPn34ru1upIApf284+Y9y5SRU=' 'sha256-zrpCQgBqL+HsD/oFUwe7bIHFiHY/Zf20mM3j/nB+nQ0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' https://images.unsplash.com data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+            "value": "default-src 'self'; script-src 'self' 'sha256-52FcgoGhni0nuBDStil+fnyZNNxCvOK8QVCr/46vr/c=' 'sha256-OBTN3RiyCV4Bq7dFqZ5a2pAXjnCcCYeTJMO2I/LYKeo=' 'sha256-VRUomZ2rIcrt9VVZDNfEQZcVP6/rTa5U0v6YIEFWbnc=' 'sha256-g8403vIzIMxDlojnDt8gKo4HNIZn4SwwL1g2HGJ+6JU=' 'sha256-k+a8cMvD4Dot3YzYdfhPn34ru1upIApf284+Y9y5SRU='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' https://images.unsplash.com data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
           },
           {
             "key": "X-Content-Type-Options",

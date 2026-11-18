@@ -241,7 +241,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       {/* Painel Expandível de Filtros */}
       {isFilterDrawerOpen && (
         <div className="bg-white dark:bg-slate-950 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm mb-6 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+          <div className="flex items-center justify-between pb-3 section-band mb-4">
             <span className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
               <SlidersHorizontal className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
               Filtros Avançados

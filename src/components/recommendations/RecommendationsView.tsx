@@ -75,7 +75,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Formulário de Preferências (Coluna Esquerda) */}
         <div data-testid="recommendation-filters" className="min-w-0 lg:col-span-5 bg-white dark:bg-slate-950 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 section-band">
             <div className="flex items-center gap-2 font-bold text-sm text-slate-900 dark:text-white">
               <Sliders className="w-4 h-4 text-blue-600 dark:text-blue-300" />
               <span>Critérios e Preferências</span>
@@ -169,7 +169,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
           </div>
 
           {/* 4. Importância dos 4 Pilares (Pesos 1 a 5) */}
-          <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="space-y-3 pt-2 section-band">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               4. Prioridades de Avaliação (1 a 5)
             </label>
@@ -272,7 +272,7 @@ export const RecommendationsView: React.FC<RecommendationsViewProps> = ({
           </div>
 
           {/* Restrições Estritas */}
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          <div className="pt-2 section-band space-y-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"

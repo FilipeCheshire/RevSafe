@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Menu, X, LogOut, User } from 'lucide-react';
+import { Sun, Moon, Menu, X, LogOut, User, Bell } from 'lucide-react';
 import { AnimatedButton } from '../common/AnimatedButton';
 import { BrandLogo } from '../common/BrandLogo';
 import { UserProfile } from '../../types';
 
 interface NavbarProps {
+  alertCount: number;
+  onOpenAlerts: () => void;
   currentTab: 'home' | 'catalog' | 'compare' | 'recommendations' | 'pcbuilder' | 'chat';
   onNavigateTab: (tab: 'home' | 'catalog' | 'compare' | 'recommendations' | 'pcbuilder' | 'chat') => void;
   comparedCount: number;
@@ -16,6 +18,8 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
+  alertCount,
+  onOpenAlerts,
   currentTab,
   onNavigateTab,
   comparedCount,
@@ -42,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
+    <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-sm transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-1 sm:gap-2 h-16">
           {/* Mobile menu comes before the brand */}
@@ -93,6 +97,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Action: Modo Noturno & Auth */}
           <div className="flex items-center gap-1 sm:gap-2">
+            <button onClick={onOpenAlerts} aria-label={`Alertas de segurança: ${alertCount} notificações`} aria-haspopup="dialog" className="relative p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900">
+              <Bell className={`w-5 h-5 ${alertCount > 0 ? 'notification-bell' : ''}`} />
+              {alertCount > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full bg-amber-700 text-white text-[10px] font-bold flex items-center justify-center">{alertCount}</span>}
+            </button>
             {/* Dark Mode Toggle */}
             <button
               onClick={onToggleDarkMode}
@@ -106,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Auth State Button */}
             {user ? (
               <div className="flex items-center gap-1.5 pl-1">
-                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
+                <div className="max-[380px]:hidden flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
                   <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
                   <span className="font-medium text-slate-800 dark:text-slate-200 hidden sm:inline max-w-[120px] truncate">
                     {user.name}
@@ -132,7 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Drawer - Apenas texto */}
       {isMobileMenuOpen && (
-        <nav id="mobile-navigation" aria-label="Navegação principal" className="xl:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 space-y-1">
+        <nav id="mobile-navigation" aria-label="Navegação principal" className="xl:hidden bg-blue-50 dark:bg-slate-900 p-3 space-y-1">
           {navItems.map((item) => {
             const isActive = currentTab === item.id;
 

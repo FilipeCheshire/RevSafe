@@ -911,4 +911,50 @@ const BASE_MOCK_PRODUCTS: Product[] = [
   },
 ];
 
+// Fictional products with independent safety scenarios.
+const demonstrationBase = BASE_MOCK_PRODUCTS.find(product => product.id === 'prod-el-02')!;
+BASE_MOCK_PRODUCTS.push(
+  {
+    ...demonstrationBase,
+    id: 'prod-el-04', name: 'Chaleira Elétrica Genérica 1,7L',
+    brand: 'Casa Demo (Simulado)', image: '/alerts/kettle.svg', price: 119, originalPrice: 169,
+    summary: 'Produto fictício para demonstrar um alerta no desligamento automático.',
+    specs: { Capacidade: '1,7 litro', Potência: '1500 W', Uso: 'Doméstico', Modelo: 'Demonstração' },
+    pros: ['Indicador de nível de água', 'Base removível'],
+    cons: ['Falha simulada no desligamento automático', 'Lote de exemplo em análise'],
+    scores: { quality: 6, safety: 4, sustainability: 6, costBenefit: 5, overall: 5.3 },
+    reparabilityIndex: 4, energyClass: 'N/A',
+    pillarNotes: { quality: 'Corpo e base avaliados em cenário demonstrativo.', safety: 'O termostato não interrompeu o aquecimento no ensaio simulado.', sustainability: 'Peças de reposição limitadas neste exemplo.', costBenefit: 'Preço baixo, com ressalva de segurança no lote de teste.' },
+    safetyAlert: {
+      hasAlert: true, severity: 'warning', status: 'alerta_ativo', isSimulated: true,
+      title: 'Falha no desligamento automático (Simulado)',
+      description: 'No ensaio fictício, o termostato manteve o aquecimento após a fervura. O lote demonstrativo requer inspeção da assistência antes do uso. Não representa recall real.',
+      affectedBatches: 'DEMO-CHA-2026-01', date: '18/11/2026',
+    },
+    certifications: ['Termostato em avaliação demonstrativa'],
+    sources: [{ title: 'Teste simulado de desligamento térmico', organization: 'RevSafe — demonstração', type: 'Laboratório', urlLabel: 'Relatório demonstrativo', date: '18/11/2026', isSimulated: true }],
+  },
+  {
+    ...demonstrationBase,
+    id: 'prod-au-02', name: 'Fone Bluetooth Genérico Pulse',
+    brand: 'Áudio Demo (Simulado)', category: 'audio', categoryLabel: 'Áudio & Fones',
+    image: '/alerts/headphones.svg', price: 89, originalPrice: 129,
+    summary: 'Modelo fictício com alerta de integridade da bateria durante a recarga.',
+    specs: { Conectividade: 'Bluetooth', Formato: 'Over-ear', Alimentação: 'Bateria recarregável', Modelo: 'Demonstração' },
+    pros: ['Conexão sem fio', 'Arco ajustável'],
+    cons: ['Estufamento da bateria em ensaio simulado', 'Bateria sem substituição pelo usuário'],
+    scores: { quality: 5, safety: 3, sustainability: 4, costBenefit: 5, overall: 4.3 },
+    reparabilityIndex: 2, energyClass: 'N/A',
+    pillarNotes: { quality: 'Acabamento básico no modelo demonstrativo.', safety: 'A bateria apresentou deformação na recarga em ensaio fictício.', sustainability: 'Bateria integrada dificulta a reparação neste exemplo.', costBenefit: 'O alerta de bateria limita a recomendação do lote demonstrativo.' },
+    safetyAlert: {
+      hasAlert: true, severity: 'warning', status: 'alerta_ativo', isSimulated: true,
+      title: 'Integridade da bateria na recarga (Simulado)',
+      description: 'O cenário fictício identificou estufamento da bateria após ciclos de recarga. O lote demonstrativo deve ser encaminhado à assistência para avaliação. Não representa recall real.',
+      affectedBatches: 'DEMO-AUD-2026-02', date: '18/11/2026',
+    },
+    certifications: ['Bateria em avaliação demonstrativa'],
+    sources: [{ title: 'Ensaio simulado de ciclos de recarga', organization: 'RevSafe — demonstração', type: 'Laboratório', urlLabel: 'Relatório demonstrativo', date: '18/11/2026', isSimulated: true }],
+  },
+);
+
 export const MOCK_PRODUCTS: Product[] = BASE_MOCK_PRODUCTS.map(completeSpecifications);

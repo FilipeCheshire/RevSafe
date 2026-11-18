@@ -20,6 +20,7 @@ import {
 import { Product } from '../../types';
 import { PillarBadge } from '../common/PillarBadge';
 import { SafetyAlertBanner } from '../common/SafetyAlertBanner';
+import { useDialog } from '../common/useDialog';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -44,6 +45,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'pilares' | 'specs' | 'precos' | 'fontes'>('pilares');
 
+  const dialogRef = useDialog(isOpen, onClose);
   if (!isOpen || !product) return null;
 
   // Cotações de preço padrão simuladas
@@ -55,11 +57,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div role="dialog" aria-modal="true" aria-label={product.name} className="relative w-full max-w-4xl bg-white dark:bg-slate-950 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 my-auto max-h-[92dvh] flex flex-col overflow-hidden">
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={product.name} className="relative w-full max-w-5xl bg-white dark:bg-slate-950 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 my-auto max-h-[92dvh] flex flex-col overflow-hidden">
         
         {/* Header Modal Bar */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between p-4 sm:p-5 bg-slate-50 dark:bg-slate-900">
+          <div className="min-w-0 flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 rounded-md">
               {product.brand} • {product.categoryLabel}
             </span>
@@ -70,7 +72,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => onToggleFavorite(product.id)}
               className={`p-2 rounded-lg transition-colors ${
@@ -93,10 +95,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
         </div>
 
         {/* Scrollable Body */}
-        <div className="overflow-y-auto p-5 sm:p-8 space-y-6 flex-1">
+        <div className="report-body overflow-y-auto p-4 sm:p-7 space-y-5 flex-1 min-h-0">
           {/* Hero Banner Grid */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-            <div className="md:col-span-5">
+            <div className="md:col-span-5 min-w-0">
               <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 relative">
                 <img
                   src={product.image}
@@ -148,10 +150,20 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   )}
                 </div>
               </div>
+              <div className="mt-4 p-4 rounded-xl bg-blue-50/70 dark:bg-slate-900">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">Visão dos 4 pilares</h2>
+                {([
+                  ['Qualidade', product.scores.quality], ['Segurança', product.scores.safety],
+                  ['Sustentabilidade', product.scores.sustainability], ['Custo-benefício', product.scores.costBenefit],
+                ] as const).map(([label, score]) => <div key={label} className="mt-2.5">
+                  <div className="flex justify-between text-xs gap-2 mb-1"><span>{label}</span><strong>{score.toFixed(1)}/10</strong></div>
+                  <div className="h-1.5 rounded-full bg-blue-100 dark:bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-blue-600 dark:bg-blue-400" style={{width: `${score * 10}%`}} /></div>
+                </div>)}
+              </div>
             </div>
 
             {/* Right Information Column */}
-            <div className="md:col-span-7 space-y-4">
+            <div className="order-first md:order-none md:col-span-7 min-w-0 space-y-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   {product.name}
@@ -191,7 +203,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-300" />
                     <span>Certificações</span>
                   </div>
-                  <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-1 truncate" title={product.certifications.join(', ')}>
+                  <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-1 leading-relaxed break-words" title={product.certifications.join(', ')}>
                     {product.certifications[0] || 'Conforme'}
                   </div>
                 </div>
@@ -223,11 +235,12 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </ul>
                 </div>
               </div>
+
             </div>
           </div>
 
           {/* Navigation Tabs for In-Depth Data */}
-          <div className="border-b border-slate-200 dark:border-slate-800 pt-4">
+          <div className="rounded-xl bg-blue-50/60 dark:bg-slate-900 px-3 pt-3">
             <div className="flex gap-4 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('pilares')}

@@ -16,8 +16,12 @@ import { CompareFloatingBar } from './components/common/CompareFloatingBar';
 import { Category, Product, UserProfile } from './types';
 import { MOCK_PRODUCTS } from './data/mockProducts';
 import { authService } from './services/authService';
+import { GridBackground } from './components/common/GridBackground';
+import { SafetyNotifications } from './components/common/SafetyNotifications';
 
 export default function App() {
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const alertProducts = MOCK_PRODUCTS.filter(product => product.safetyAlert.hasAlert);
   const [currentTab, setCurrentTab] = useState<
     'home' | 'catalog' | 'compare' | 'recommendations' | 'pcbuilder' | 'chat'
   >('home');
@@ -125,7 +129,8 @@ export default function App() {
 
   if (!user) {
     return (
-      <main className="relative min-h-[100dvh] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
+      <main className="app-background relative min-h-[100dvh] text-slate-900 dark:text-white">
+        <GridBackground />
         <button type="button" onClick={toggleDarkMode} aria-label="Alternar tema claro e escuro" className="absolute right-4 top-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-slate-700 dark:text-slate-200">
           {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </button>
@@ -139,9 +144,12 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white transition-colors">
+    <div className="app-background min-h-screen text-slate-900 dark:text-slate-100 flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white transition-colors">
+      {currentTab !== 'home' && <GridBackground />}
       {/* Top Navbar */}
       <Navbar
+        alertCount={alertProducts.length}
+        onOpenAlerts={() => setAlertsOpen(true)}
         currentTab={currentTab}
         onNavigateTab={handleNavigateTab}
         comparedCount={comparedIds.length}
@@ -160,6 +168,7 @@ export default function App() {
       />
 
       {/* Main Content Router */}
+      <SafetyNotifications open={alertsOpen} products={alertProducts} onClose={() => setAlertsOpen(false)} onOpenReport={product => { setAlertsOpen(false); handleOpenProductDetail(product); }} />
       <a href="#main-content" className="skip-link">Pular para o conteúdo</a>
       <main id="main-content" className={`flex-1 min-w-0 ${comparedIds.length && currentTab !== 'compare' ? 'pb-44 sm:pb-28' : ''}`}>
         {currentTab === 'home' && (

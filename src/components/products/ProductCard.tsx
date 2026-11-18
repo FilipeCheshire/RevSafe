@@ -125,7 +125,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* Pricing and Action Footer */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="pt-3 section-band">
           <div className="flex flex-wrap items-baseline justify-between gap-3 mb-3">
             <div>
               <div className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Preço médio apurado</div>

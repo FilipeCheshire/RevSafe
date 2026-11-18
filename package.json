@@ -17,6 +17,7 @@
     "test:branding": "node scripts/validate-branding.mjs",
     "test:search": "node scripts/validate-product-data.mjs",
     "test:mobile": "node scripts/validate-mobile-and-search.mjs",
+    "test:scroll": "node scripts/validate-scroll-experience.mjs",
     "test:builder:engine": "node scripts/validate-builder-engine.mjs",
     "test:builder:ui": "node scripts/validate-builder-ui.mjs"
   },

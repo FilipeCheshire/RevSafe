@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import '../scroll-experience.css';
 import '../index.css';
 
 export const metadata: Metadata = {

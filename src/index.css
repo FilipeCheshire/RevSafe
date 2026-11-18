@@ -14,8 +14,73 @@
   --color-slate-800: #1b3866;
   --font-sans: "Segoe UI", Inter, system-ui, sans-serif;
 }
-:root { color-scheme: light; background: #f8fafc; color: #0f172a; }
-:root.dark { color-scheme: dark; background: #071940; color: #f1f5f9; }
+:root {
+  color-scheme: light; background: #f8fafc; color: #0f172a;
+  --grid-color: 8, 100, 206; --grid-opacity: .68;
+  --scrollbar-track: #edf3fb;
+  --scrollbar-thumb: #7698c3;
+  --scrollbar-thumb-hover: #0864ce;
+}
+:root.dark {
+  color-scheme: dark; background: #10264a; color: #f1f5f9;
+  --grid-color: 96, 165, 250;
+  --grid-opacity: .78;
+  --color-slate-950: #10264a;
+  --color-slate-900: #18365c;
+  --color-slate-800: #284b76;
+  --scrollbar-track: #0d203d;
+  --scrollbar-thumb: #4b729f;
+  --scrollbar-thumb-hover: #64adff;
+}
+/* Native scrolling, with the same palette in the page and scrollable dialogs. */
+* { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+*::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border: 2px solid var(--scrollbar-track); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+*::-webkit-scrollbar-corner { background: var(--scrollbar-track); }
+@media (forced-colors: active) { * { scrollbar-color: auto; } }
+.app-background { position: relative; isolation: isolate; }
+.grid-background { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: .6; }
+.grid-surface { position: relative; isolation: isolate; }
+.grid-surface-content { position: relative; z-index: 1; }
+.grid-background--surface { position: absolute; inset: 0 0 auto; z-index: 0; opacity: 1; }
+
+/* Quiet section changes replace horizontal separators. */
+.home-section { padding-block: clamp(2.5rem, 5vw, 5rem); background: #f2f6fcdb; }
+.home-section:nth-of-type(odd) { background: #eaf2fcdb; }
+.dark .home-section { background: #0d203ddd; }
+.dark .home-section:nth-of-type(odd) { background: #122a49dd; }
+.section-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; }
+.section-title { font-size: clamp(1.5rem, 2.8vw, 2.5rem); font-weight: 800; letter-spacing: -.035em; line-height: 1.15; }
+.section-heading > button { padding: .7rem 1rem; border-radius: 999px; background: #e0edff; min-height: 44px; }
+.dark .section-heading > button { background: #203d63; color: #bfdbfe; }
+.section-band { padding: 1rem; border-radius: 1rem; background: #eef4fc; }
+.dark .section-band { background: #142e50; }
+.notification-bell { transform-origin: 50% 15%; animation: bell-swing 30s ease-in-out infinite; }
+@keyframes bell-swing {
+  0%, 96%, 100% { transform: rotate(0); }
+  96.5%, 98% { transform: rotate(13deg); }
+  97%, 98.5% { transform: rotate(-11deg); }
+  99% { transform: rotate(5deg); }
+}
+/* Reveal once on scroll: a short upward settling motion, without text effects. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal].is-revealed { animation: section-arrive .65s cubic-bezier(.2,.65,.3,1) both; }
+  .notification-dialog { animation: enter-workspace .22s ease both; }
+}
+@keyframes enter-workspace { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes section-arrive { from { opacity: .6; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (min-width: 1024px) {
+  .section-heading { flex-direction: column; text-align: center; gap: 1.25rem; margin-bottom: 2.5rem; }
+}
+@media (max-width: 639px) {
+  .section-heading { align-items: flex-start; }
+  .section-heading > div { flex: 1 1 100%; }
+  .report-body { overscroll-behavior: contain; }
+  .notification-dialog { overscroll-behavior: contain; }
+}
+@media (prefers-reduced-motion: reduce) { .notification-bell { animation: none; } }
 body { margin: 0; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font-family: inherit; }
 button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
